@@ -1,0 +1,10 @@
+@import "styles/azure-blue.css";
+@import "light.css";
+
+.primary-color {
+  color: #005cbb !important;
+}
+
+.accent-color {
+  color: #565e71 !important;
+}

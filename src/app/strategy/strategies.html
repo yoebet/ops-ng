@@ -1,0 +1,280 @@
+<div class="mat-elevation-z1">
+  <mat-toolbar>
+    <span class="toolbar-title">
+      Strategy
+      <ng-template [ngIf]="type==='paper'">(Paper Trade)</ng-template>
+      <ng-template [ngIf]="type==='real'">(Real)</ng-template>
+    </span>
+    <span class="spacer"></span>
+    <button mat-stroked-button color="primary" (click)="editNew()">
+      <mat-icon>add_circle_outline</mat-icon>
+      New
+    </button>
+    <button mat-button (click)="refresh()" [disabled]="processes['refreshing']">
+      <mat-icon>refresh</mat-icon>
+      Refresh
+    </button>
+    <button mat-button [matMenuTriggerFor]="actions">
+      <mat-icon>more_vert</mat-icon>
+    </button>
+    <mat-menu #actions="matMenu">
+      <button mat-menu-item>
+        <mat-icon>pause</mat-icon>
+        全部暂停
+      </button>
+    </mat-menu>
+  </mat-toolbar>
+
+  <div class="ml-4 mr-4 mt-2 mb-2">
+    <div>
+      <mat-label class="mr-4">Exchange</mat-label>
+      <button mat-button [class]="!filter.ex? 'active-link':null" (click)="filter.ex=undefined;applyFilter()">
+        ALL
+      </button>
+      <button mat-button [class]="filter.ex===ex.value? 'active-link':null"
+              *ngFor="let ex of exchanges" (click)="filter.ex=ex.value;applyFilter()">
+        {{ ex.label }}
+      </button>
+      <mat-label class="ml-4 mr-4">Trade Type</mat-label>
+      <button mat-button [class]="!filter.tradeType? 'active-link':null"
+              (click)="filter.tradeType=undefined;applyFilter()">
+        ALL
+      </button>
+      <button mat-button [class]="filter.tradeType===tradeType? 'active-link':null"
+              *ngFor="let tradeType of ['spot','margin']" (click)="filter.tradeType=tradeType;applyFilter()">
+        {{ tradeType }}
+      </button>
+      <mat-label class="ml-4 mr-4">Open Side</mat-label>
+      <button mat-button [class]="!filter.openDealSide? 'active-link':null"
+              (click)="filter.openDealSide=undefined;applyFilter()">
+        ALL
+      </button>
+      <button mat-button [class]="filter.openDealSide===side? 'active-link':null"
+              *ngFor="let side of ['both','buy','sell']" (click)="filter.openDealSide=side;applyFilter()">
+        {{ side }}
+      </button>
+    </div>
+    <div>
+      <mat-label class="mr-4">Coin</mat-label>
+      <button mat-button [class]="!filter.baseCoin? 'active-link':null"
+              (click)="filter.baseCoin=undefined;applyFilter()">
+        ALL
+      </button>
+      <button mat-button [class]="filter.baseCoin===coin? 'active-link':null"
+              *ngFor="let coin of coins" (click)="filter.baseCoin=coin;applyFilter()">
+        {{ coin }}
+      </button>
+    </div>
+  </div>
+
+  <table mat-table class="full-width" matSort matSortDirection="asc">
+
+    <ng-container matColumnDef="index">
+      <th mat-header-cell *matHeaderCellDef>#</th>
+      <td mat-cell *matCellDef="let row; let index=index">
+        {{ index + 1 }}&nbsp;
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="ex">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Ex</th>
+      <td mat-cell *matCellDef="let row">
+        {{ row.ex }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="baseCoin">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Coin</th>
+      <td mat-cell *matCellDef="let row">
+        {{ row.baseCoin }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="symbol">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Symbol</th>
+      <td mat-cell *matCellDef="let row">
+        {{ row.symbol }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
+      <td mat-cell *matCellDef="let row">
+        {{ row.name }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="algo">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Algo</th>
+      <td mat-cell *matCellDef="let row">
+        {{ row.openAlgo }}/{{ row.closeAlgo }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="openAlgo">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Open Algo</th>
+      <td mat-cell *matCellDef="let row">
+        {{ row.openAlgo }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="closeAlgo">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Close Algo</th>
+      <td mat-cell *matCellDef="let row">
+        {{ row.closeAlgo }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="openDealSide">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Open Side</th>
+      <td mat-cell *matCellDef="let row">
+        {{ row.openDealSide }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="tradeType">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Trade Type</th>
+      <td mat-cell *matCellDef="let row">
+        {{ row.tradeType }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="quoteAmount">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Amount</th>
+      <td mat-cell *matCellDef="let row">
+        {{ row.quoteAmount }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="paperTrade">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Paper</th>
+      <td mat-cell *matCellDef="let row">
+        <mat-icon class="check" *ngIf="row.paperTrade">check</mat-icon>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="createdAt">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Created At (UTC)</th>
+      <td mat-cell *matCellDef="let row">
+        {{ row.createdAt | date: 'YYYY-MM-dd' }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="memo">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Memo</th>
+      <td mat-cell *matCellDef="let row">
+        {{ row.memo }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="active">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Active</th>
+      <td mat-cell *matCellDef="let row">
+        <mat-icon class="check" *ngIf="row.active">check</mat-icon>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="jobSummited">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Job</th>
+      <td mat-cell *matCellDef="let row">
+        <mat-icon class="check" *ngIf="row.jobSummited">check</mat-icon>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="dealsCount">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Deals</th>
+      <td mat-cell *matCellDef="let row">
+        <button mat-button (click)="showDeals(row)" *ngIf="row.dealsCount>0">
+          {{ row.dealsCount }}
+        </button>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="ordersCount">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Orders</th>
+      <td mat-cell *matCellDef="let row">
+        {{ row.ordersCount }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="pnlUsd">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Pnl</th>
+      <td mat-cell *matCellDef="let row">
+        {{ row.pnlUsd | number:'1.0-2' }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let row" align="end">
+
+        <button mat-button (click)="showParams(row)">
+          <!--          <mat-icon>gavel</mat-icon>-->
+          Params
+        </button>
+
+        <button mat-button [matMenuTriggerFor]="charts">
+          <mat-icon>more_vert</mat-icon>
+          Chart
+        </button>
+        <mat-menu #charts="matMenu">
+          <a mat-menu-item routerLink="{{row.id}}/orders-chart">Chart (Page)</a>
+          <button mat-menu-item (click)="showKlineOrdersChart(row)">
+            Chart (Popup)
+          </button>
+        </mat-menu>
+
+        <button mat-button [matMenuTriggerFor]="jobActions">
+          <mat-icon>more_vert</mat-icon>
+          Job
+        </button>
+        <mat-menu #jobActions="matMenu">
+          <button mat-menu-item (click)="operateJob(row, 'summit')">
+            Summit
+          </button>
+          <button mat-menu-item (click)="operateJob(row, 'remove')">
+            Remove
+          </button>
+          <button mat-menu-item (click)="operateJob(row, 'retry')">
+            Retry
+          </button>
+          <button mat-menu-item (click)="operateJob(row, 'stop')">
+            Stop
+          </button>
+          <button mat-menu-item (click)="operateJob(row, 'clearLogs')">
+            Clear Logs
+          </button>
+        </mat-menu>
+
+        <button mat-button (click)="edit(row)">
+          Edit
+        </button>
+
+        <button mat-button [matMenuTriggerFor]="miscActions">
+          <mat-icon>more_vert</mat-icon>
+          Misc
+        </button>
+        <mat-menu #miscActions="matMenu">
+          <button mat-menu-item (click)="duplicate(row)">Duplicate ...</button>
+          <button mat-menu-item (click)="clone(row)">Clone</button>
+          <button mat-menu-item (click)="drop(row)">Drop</button>
+          <button mat-menu-item (click)="cancelDeal(row)">Cancel Deal</button>
+        </mat-menu>
+
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+
+  <mat-paginator #paginator
+                 [length]="dataSource?.data.length"
+                 [pageIndex]="0"
+                 [pageSize]="10"
+                 [pageSizeOptions]="[10, 20, 50, 100]">
+  </mat-paginator>
+
+</div>
+
+<p>&nbsp;</p>

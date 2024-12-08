@@ -1,1 +1,139 @@
-/* You can add global styles to this file, and also import other style files */
+@import "assets/material-icons/material-icons.css";
+
+/*@tailwind base;*/
+@tailwind components;
+@tailwind utilities;
+
+html, body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+@media print {
+  .not-print, .not-print * {
+    display: none;
+  }
+}
+
+.full-width {
+  width: 100%;
+}
+
+.mat-toolbar {
+  font-size: 1rem !important;
+}
+
+.mat-toolbar .toolbar-title {
+  font-size: 20px;
+  display: inline-block;
+  margin-right: 2rem;
+}
+
+.multi-lines-tooltip, .notification-panel {
+  white-space: pre-line;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.pre-wrap {
+  white-space: pre-wrap;
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.sidenav .mat-expansion-panel-body {
+  margin-left: 1.5em;
+}
+
+.mat-header-cell.sum-row {
+  font-size: 1.1em;
+}
+
+.table-filter-form .mat-form-field {
+  margin-right: 0.5em;
+  width: 120px;
+}
+
+.mat-button.secondary:not([disabled]):hover {
+  color: inherit;
+}
+
+button .mat-icon, .mat-icon.mat-icon-20 {
+  /*height: 22px !important;*/
+  /*width: 20px !important;*/
+  font-size: 20px !important;
+  vertical-align: middle !important;
+}
+
+.mat-table .mat-icon, .mat-table .mat-header-row .mat-icon, .mat-icon.mat-icon-16 {
+  height: 18px !important;
+  width: 16px !important;
+  font-size: 16px !important;
+}
+
+.mat-button i.mat-icon.icon {
+  vertical-align: top !important;
+  margin: 0 0;
+}
+
+.mat-table i.mat-icon.icon {
+  height: 14px !important;
+  width: 14px !important;
+  font-size: 14px !important;
+}
+
+table.mat-table td {
+  padding-right: 6px;
+}
+
+.sidenav .mat-expansion-panel-body {
+  padding-left: 0;
+  padding-right: 0;
+  padding-bottom: 0;
+}
+
+.sidenav .mat-expansion-panel-body .mat-nav-list {
+  padding-top: 0;
+}
+
+.sidenav .mat-expansion-panel-body .mat-nav-list .mat-list-item span {
+  padding-left: 24px;
+}
+
+.content-container {
+  padding: 16px;
+  min-width: 640px;
+  display: inline-block;
+}
+
+.mat-expansion-indicator {
+  display: flex;
+}
+
+.mat-expansion-panel-header {
+  /*background: #303030 !important;*/
+  border-bottom: 1px solid rgba(255, 255, 255, .12);
+}
+
+.main-toolbar.mat-toolbar {
+  background: var(--mat-sys-primary-container);
+  color: var(--mat-sys-on-primary-container);
+  /*border: 1px solid var(--mat-sys-outline-variant);*/
+  font: var(--mat-sys-body-large);
+}
+
+@media (max-width: 759px) {
+  .mat-toolbar {
+    flex-wrap: wrap;
+    min-height: 64px;
+    height: auto !important;
+  }
+}

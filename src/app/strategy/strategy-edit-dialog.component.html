@@ -1,0 +1,87 @@
+<h4 mat-dialog-title>
+  {{ isNew ? 'Create' : 'Edit' }} Strategy
+  ({{ st.paperTrade ? 'Paper Trade' : 'Real Trade' }})
+</h4>
+
+<mat-dialog-content>
+  <div></div>
+  <div class="mt-4">
+    <mat-form-field class="mr-4">
+      <mat-label>Ex</mat-label>
+      <mat-select [(ngModel)]="st.ex">
+        <mat-option *ngFor="let exch of exchanges" [value]="exch.value">
+          {{ exch.label }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Symbol</mat-label>
+      <mat-select [(ngModel)]="st.symbol">
+        <mat-option *ngFor="let sym of symbols" [value]="sym.symbol">
+          {{ sym.symbol }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+  <div class="mt-4">
+    <mat-form-field class="mr-4">
+      <mat-label>Open Algo</mat-label>
+      <mat-select [(ngModel)]="st.openAlgo" [disabled]="!isNew">
+        <mat-option *ngFor="let algo of oppAlgos" [value]="algo">
+          {{ algo }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Close Algo</mat-label>
+      <mat-select [(ngModel)]="st.closeAlgo" [disabled]="!isNew">
+        <mat-option *ngFor="let algo of oppAlgos" [value]="algo">
+          {{ algo }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+  <div>
+    <mat-form-field>
+      <mat-label>Quote Amount</mat-label>
+      <span matTextPrefix>$ &nbsp;</span>
+      <input matInput type="number" min="10" max="10000" [(ngModel)]="st.quoteAmount"/>
+    </mat-form-field>
+  </div>
+  <div>
+    <mat-label class="mr-4">Trade Type</mat-label>
+    <button class="mr-4" mat-button [class]="st.tradeType===tradeType? 'active-link':null"
+            *ngFor="let tradeType of [ExTradeType.spot,ExTradeType.margin]"
+            (click)="st.tradeType=tradeType">
+      {{ tradeType }}
+    </button>
+  </div>
+  <div class="mt-2">
+    <mat-label class="mr-4">Open Deal Side</mat-label>
+    <button class="mr-4" mat-button [class]="st.openDealSide===side? 'active-link':null"
+            *ngFor="let side of sides"
+            (click)="st.openDealSide=side">
+      {{ side }}
+    </button>
+  </div>
+  <div class="mt-4">
+    <mat-form-field class="w-full">
+      <mat-label>Params</mat-label>
+      <textarea matInput placeholder="{...}" [(ngModel)]="paramsJson" (blur)="checkParams()" rows="10"></textarea>
+    </mat-form-field>
+  </div>
+  <div>
+    <mat-form-field class="w-full">
+      <mat-label>Memo</mat-label>
+      <input matInput [(ngModel)]="st.memo"/>
+    </mat-form-field>
+  </div>
+  <div>
+    <mat-checkbox [(ngModel)]="st.active">Active</mat-checkbox>
+  </div>
+</mat-dialog-content>
+
+<div mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close="">Cancel</button>
+  <button mat-button (click)="save()">{{ isNew ? 'Create' : 'Save' }}</button>
+</div>

@@ -1,12 +1,16 @@
-import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { ThemeService } from '@/services/style/theme.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  standalone: false,
   templateUrl: './app.component.html',
-  styleUrl: './app.component.css'
 })
-export class AppComponent {
-  title = 'ops-ng';
+export class AppComponent implements OnInit {
+  constructor(private themeService: ThemeService) {
+  }
+
+  async ngOnInit() {
+    this.themeService.setDefaultTheme();
+  }
 }

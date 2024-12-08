@@ -1,0 +1,10 @@
+@import "styles/rose-red.css";
+@import "light.css";
+
+.primary-color {
+  color: #ba005c !important;
+}
+
+.accent-color {
+  color: #74565d !important;
+}

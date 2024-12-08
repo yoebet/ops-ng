@@ -1,0 +1,55 @@
+<mat-dialog-content>
+  <div>
+    <div class="flex">
+      <div class="mb-2 mr-4">
+        <mat-label class="mr-4">Exchange</mat-label>
+        <span class="primary-color">{{ params.ex }}</span>
+      </div>
+      <div class="mb-2 mr-4">
+        <mat-label class="mr-4">Symbol</mat-label>
+        <span class="primary-color">{{ params.symbol }}</span>
+      </div>
+      <div class="mb-2 mr-4">
+        <mat-label class="mr-4">Strategy From</mat-label>
+        <span class="primary-color">{{ strategy?.createdAt }}</span>
+      </div>
+    </div>
+    <div class="mb-2">
+      <mat-label class="mr-4">Source</mat-label>
+      <button class="mr-4" mat-button [class]="klineSource===source? 'active-link':null"
+              *ngFor="let source of klineSources" (click)="klineSource=source;refresh()">
+        {{ source }}
+      </button>
+    </div>
+    <div class="mb-2">
+      <mat-label class="mr-4">Interval</mat-label>
+      <button mat-button [class]="params.interval===tl.interval? 'active-link':null"
+              *ngFor="let tl of timeLevels" (click)="params.interval=tl.interval;refresh()">
+        {{ tl.interval }}
+      </button>
+    </div>
+    <div class="mb-2">
+      <mat-form-field class="mr-4">
+        <mat-label>Date From</mat-label>
+        <input matInput [matDatepicker]="dateFromPicker" [(ngModel)]="params.dateFrom"
+               (dblclick)="params.dateFrom=undefined" (dateChange)="refresh()">
+        <mat-datepicker-toggle matIconSuffix [for]="dateFromPicker"></mat-datepicker-toggle>
+        <mat-datepicker #dateFromPicker></mat-datepicker>
+      </mat-form-field>
+      <mat-form-field class="mr-4">
+        <mat-label>Limit</mat-label>
+        <mat-select [(ngModel)]="params.limit" (selectionChange)="refresh()">
+          <mat-option *ngFor="let limit of limits" [value]="limit">
+            {{ limit }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+      <button mat-button (click)="refresh()">Refresh</button>
+    </div>
+  </div>
+  <div [style.width.px]="chartWidth" [style.height.px]="chartHeight" class="kline-chart" #chart></div>
+</mat-dialog-content>
+
+<div mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close="">确定</button>
+</div>

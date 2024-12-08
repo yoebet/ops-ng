@@ -1,0 +1,6 @@
+{
+  "/ops": {
+    "target": "http://52.221.223.26:5000",
+    "changeOrigin": true
+  }
+}

@@ -1,0 +1,110 @@
+<mat-toolbar color="primary" class="main-toolbar">
+  <button mat-icon-button (click)="snav.toggle()">
+    <mat-icon>menu</mat-icon>
+  </button>
+  <h1>
+    OPS
+    <span class="full-title"></span>
+    <!--<mat-slide-toggle>Toggle me!</mat-slide-toggle>-->
+  </h1>
+  <span class="spacer"></span>
+  <mat-icon class="current-user-icon" aria-hidden="false" aria-label="user icon">account_circle</mat-icon>
+  <div class="current-user-info">
+    <ng-template [ngIf]="currentUser">
+      <button mat-button [matMenuTriggerFor]="currentUserMenu">{{ currentUser.username }}</button>
+      <mat-menu #currentUserMenu="matMenu">
+        <button mat-menu-item (click)="showDetail()">
+          <mat-icon>info</mat-icon>
+          User
+        </button>
+        <button mat-menu-item (click)="logout()">
+          <mat-icon>exit_to_app</mat-icon>
+          Logout
+        </button>
+      </mat-menu>
+      <button mat-button (click)="disableNotification()" *ngIf="notificationsOn">
+        <mat-icon>notifications</mat-icon>
+      </button>
+      <button mat-button (click)="enableNotification()" *ngIf="!notificationsOn">
+        <mat-icon>notifications_off</mat-icon>
+      </button>
+    </ng-template>
+    <a mat-button *ngIf="!currentUser" (click)="openLoginDialog()">(Not Log In)</a>
+  </div>
+
+  <app-theme-switch></app-theme-switch>
+</mat-toolbar>
+
+<mat-sidenav-container class="sidenav-container">
+  <mat-sidenav #drawer class="sidenav" fixedInViewport
+               [attr.role]="mobileQuery.matches ? 'dialog' : 'navigation'"
+               [mode]="mobileQuery.matches ? 'over' : 'side'"
+               [opened]="mobileQuery.matches === false" #snav
+               [fixedInViewport]="mobileQuery.matches" fixedTopGap="56"
+               (openedChange)="drawerChange($event,drawer.mode)">
+
+    <mat-accordion displayMode="flat" [multi]="true" *ngIf="beenLogin">
+
+      <mat-expansion-panel class="mat-elevation-z1" [expanded]="true">
+        <mat-expansion-panel-header expandedHeight="48px" collapsedHeight="48px">
+          <mat-panel-title>Market</mat-panel-title>
+        </mat-expansion-panel-header>
+        <mat-nav-list>
+          <a mat-list-item routerLink="/klines" class="menu-item"
+             routerLinkActive="active-link">
+            <span>Candle Line</span>
+          </a>
+        </mat-nav-list>
+      </mat-expansion-panel>
+
+      <mat-expansion-panel class="mat-elevation-z1" [expanded]="true">
+        <mat-expansion-panel-header expandedHeight="48px" collapsedHeight="48px">
+          <mat-panel-title>Strategy</mat-panel-title>
+        </mat-expansion-panel-header>
+        <mat-nav-list>
+          <a mat-list-item routerLink="/templates" class="menu-item"
+             routerLinkActive="active-link">
+            <span>Template</span>
+          </a>
+          <!--<a mat-list-item routerLink="/strategies" class="menu-item"
+             routerLinkActive="active-link">
+            <span>Strategy</span>
+          </a>-->
+          <a mat-list-item routerLink="/real-strategies" class="menu-item"
+             routerLinkActive="active-link">
+            <span>Real Trade</span>
+          </a>
+          <a mat-list-item routerLink="/paper-strategies" class="menu-item"
+             routerLinkActive="active-link">
+            <span>Paper Trade</span>
+          </a>
+          <a mat-list-item routerLink="/bt-strategies" class="menu-item"
+             routerLinkActive="active-link">
+            <span>Back Test</span>
+          </a>
+        </mat-nav-list>
+      </mat-expansion-panel>
+
+      <mat-expansion-panel class="mat-elevation-z1" [expanded]="false">
+        <mat-expansion-panel-header expandedHeight="48px" collapsedHeight="48px">
+          <mat-panel-title>System</mat-panel-title>
+        </mat-expansion-panel-header>
+        <mat-nav-list>
+          <a mat-list-item routerLink="/exchs" class="menu-item"
+             routerLinkActive="active-link">
+            <span>Exchange</span>
+          </a>
+        </mat-nav-list>
+      </mat-expansion-panel>
+
+    </mat-accordion>
+
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <div class="m-2">
+      <router-outlet></router-outlet>
+    </div>
+  </mat-sidenav-content>
+
+</mat-sidenav-container>
