@@ -1,23 +1,22 @@
-import { AfterContentInit, AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ECharts } from 'echarts';
 import * as echarts from 'echarts';
 import rawData from './d.json'
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  imports: [],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
 export class AppComponent implements OnInit, AfterViewInit {
-  @ViewChild('chart') chartDiv: ElementRef | undefined;
-  chart: ECharts | undefined;
+  @ViewChild('chart') chartDiv!: ElementRef;
+  chart!: ECharts;
 
   title = 'ops-ng';
 
   chartWidth = '100%';
-  chartHeight = 400;
+  chartHeight = 600;
 
 
   async ngOnInit() {
@@ -27,17 +26,17 @@ export class AppComponent implements OnInit, AfterViewInit {
 
     type EChartsOption = echarts.EChartsOption;
 
-    const holder: HTMLDivElement = this.chartDiv!.nativeElement as HTMLDivElement;
+    const holder = this.chartDiv!.nativeElement as HTMLDivElement;
     this.chart = echarts.init(holder, null,
       {
-        renderer: 'svg',
-        locale: 'ZH'
+        // renderer: 'svg',
+        // locale: 'ZH'
       });
     var myChart = this.chart;
     var option: EChartsOption;
 
-    const upColor = '#00da3c';
-    const downColor = '#ec0000';
+    const upColor = 'rgba(40,255,40,0.6)';
+    const downColor = 'rgba(255,80,80,0.6)';
 
     function splitData(rawData: number[][]) {
       let categoryData = [];
@@ -72,9 +71,6 @@ export class AppComponent implements OnInit, AfterViewInit {
       return result;
     }
 
-    // const res = await fetch(ROOT_PATH + '/data/asset/data/stock-DJI.json');
-    // const rawData = rawData;
-
     var data = splitData(rawData as any[]);
 
     option = {
@@ -82,7 +78,7 @@ export class AppComponent implements OnInit, AfterViewInit {
       legend: {
         bottom: 10,
         left: 'center',
-        data: ['Dow-Jones index', 'MA5', 'MA10', 'MA20', 'MA30']
+        data: ['MA5', 'MA10']
       },
       tooltip: {
         trigger: 'axis',
@@ -111,6 +107,7 @@ export class AppComponent implements OnInit, AfterViewInit {
           }
         ],
         label: {
+          // show: true,
           backgroundColor: '#777'
         }
       },
@@ -133,7 +130,7 @@ export class AppComponent implements OnInit, AfterViewInit {
       },
       visualMap: {
         show: false,
-        seriesIndex: 5,
+        seriesIndex: 1,
         dimension: 2,
         pieces: [
           {
@@ -155,7 +152,7 @@ export class AppComponent implements OnInit, AfterViewInit {
         {
           left: '10%',
           right: '8%',
-          top: '63%',
+          top: '58%',
           height: '16%'
         }
       ],
@@ -164,8 +161,10 @@ export class AppComponent implements OnInit, AfterViewInit {
           type: 'category',
           data: data.categoryData,
           boundaryGap: false,
-          axisLine: { onZero: false },
-          splitLine: { show: false },
+          axisLine: { show: false },
+          axisTick: { show: false },
+          axisLabel: { show: false },
+          // splitLine: { show: true },
           min: 'dataMin',
           max: 'dataMax',
           axisPointer: {
@@ -177,10 +176,10 @@ export class AppComponent implements OnInit, AfterViewInit {
           gridIndex: 1,
           data: data.categoryData,
           boundaryGap: false,
-          axisLine: { onZero: false },
-          axisTick: { show: false },
-          splitLine: { show: false },
-          axisLabel: { show: false },
+          axisLine: { show: true },
+          axisTick: { show: true },
+          axisLabel: { show: true },
+          // splitLine: { show: true },
           min: 'dataMin',
           max: 'dataMax'
         }
@@ -190,6 +189,12 @@ export class AppComponent implements OnInit, AfterViewInit {
           scale: true,
           splitArea: {
             show: true
+          },
+          axisLine: {
+            show: true,
+            lineStyle: {
+              color: 'rgba(0, 0, 0, 0.5)'
+            }
           }
         },
         {
@@ -197,9 +202,14 @@ export class AppComponent implements OnInit, AfterViewInit {
           gridIndex: 1,
           splitNumber: 2,
           axisLabel: { show: false },
-          axisLine: { show: false },
+          axisLine: {
+            show: true,
+            lineStyle: {
+              color: 'rgba(0, 0, 0, 0.5)'
+            }
+          },
           axisTick: { show: false },
-          splitLine: { show: false }
+          splitLine: { show: false },
         }
       ],
       dataZoom: [
@@ -210,9 +220,9 @@ export class AppComponent implements OnInit, AfterViewInit {
           end: 100
         },
         {
-          show: true,
-          xAxisIndex: [0, 1],
           type: 'slider',
+          // show: true,
+          xAxisIndex: [0, 1],
           top: '85%',
           start: 98,
           end: 100
@@ -231,6 +241,13 @@ export class AppComponent implements OnInit, AfterViewInit {
           }
         },
         {
+          name: 'Volume',
+          type: 'bar',
+          xAxisIndex: 1,
+          yAxisIndex: 1,
+          data: data.volumes,
+        },
+        {
           name: 'MA5',
           type: 'line',
           data: calculateMA(5, data),
@@ -247,50 +264,22 @@ export class AppComponent implements OnInit, AfterViewInit {
           lineStyle: {
             opacity: 0.5
           }
-        },
-        {
-          name: 'MA20',
-          type: 'line',
-          data: calculateMA(20, data),
-          smooth: true,
-          lineStyle: {
-            opacity: 0.5
-          }
-        },
-        {
-          name: 'MA30',
-          type: 'line',
-          data: calculateMA(30, data),
-          smooth: true,
-          lineStyle: {
-            opacity: 0.5
-          }
-        },
-        {
-          name: 'Volume',
-          type: 'bar',
-          xAxisIndex: 1,
-          yAxisIndex: 1,
-          data: data.volumes
         }
       ]
     };
 
-    myChart.setOption(
-      option,
-      true
-    );
+    myChart.setOption(option, true);
 
-    myChart.dispatchAction({
-      type: 'brush',
-      areas: [
-        {
-          brushType: 'lineX',
-          coordRange: ['2016-06-02', '2016-06-20'],
-          xAxisIndex: 0
-        }
-      ]
-    });
+    // myChart.dispatchAction({
+    //   type: 'brush',
+    //   areas: [
+    //     {
+    //       brushType: 'lineX',
+    //       coordRange: ['2016-06-02', '2016-06-20'],
+    //       xAxisIndex: 0
+    //     }
+    //   ]
+    // });
 
     myChart.setOption(option);
 
