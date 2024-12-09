@@ -2,6 +2,14 @@ import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angula
 import { ECharts } from 'echarts';
 import * as echarts from 'echarts';
 import rawData from './d.json'
+import { Kline } from '../../models/kline';
+
+
+export interface ChartKline extends Kline {
+  i: number;
+  ds: string;
+  up: 1 | -1;
+}
 
 @Component({
   selector: 'kline-chart',
@@ -42,23 +50,6 @@ export class KlineChartComponent implements OnInit, AfterViewInit {
     const volUpColor = 'rgba(0,202,60,0.5)';
     const volDownColor = 'rgba(204,0,28,0.5)';
 
-    function splitData(rawData: number[][]) {
-      let categoryData = [];
-      let values = [];
-      let volumes = [];
-      for (let i = 0; i < rawData.length; i++) {
-        categoryData.push(rawData[i].splice(0, 1)[0]);
-        values.push(rawData[i]);
-        volumes.push([i, rawData[i][4], rawData[i][0] > rawData[i][1] ? 1 : -1]);
-      }
-
-      return {
-        categoryData: categoryData,
-        values: values,
-        volumes: volumes
-      };
-    }
-
     function calculateMA(dayCount: number, data: { values: number[][] }) {
       var result = [];
       for (var i = 0, len = data.values.length; i < len; i++) {
@@ -75,16 +66,40 @@ export class KlineChartComponent implements OnInit, AfterViewInit {
       return result;
     }
 
-    var data = splitData(rawData as any[]);
+    let ii = 0;
+    const klines: ChartKline[] = (rawData as [ds: string,
+      o: number, c: number, h: number, l: number,
+      a: number][])
+      .map(([ds, o, c, h, l, a]) => {
+        const kl: ChartKline = {
+          i: ii++,
+          ts: 0,
+          o,
+          h,
+          l,
+          c,
+          s: 0,
+          a,
+          ds,
+          up: o >= c ? -1 : 1,
+        };
+        return kl;
+      });
+
+    const dimensions: (keyof ChartKline)[] = ['i', 'ds', 'o', 'h', 'l', 'c', 'a', 'up']
 
     option = {
       animation: false,
-      legend: {
-        top: 10,
-        // right: 0,
-        left: 10,
-        data: ['MA5', 'MA10']
+      dataset: {
+        dimensions,
+        source: klines as any[],
       },
+      // legend: {
+      //   top: 10,
+      //   // right: 0,
+      //   left: 10,
+      //   data: ['MA5', 'MA10']
+      // },
       tooltip: {
         trigger: 'axis',
         axisPointer: {
@@ -96,6 +111,14 @@ export class KlineChartComponent implements OnInit, AfterViewInit {
         textStyle: {
           color: '#000'
         },
+        // formatter: function (params: any) {
+        //   console.log(params);
+        //   return undefined;
+        // },
+        // valueFormatter: function (params: any) {
+        //   console.log(params);
+        //   return undefined;
+        // },
         position: function (pos, params, el, elRect, size) {
           const obj: Record<string, number> = {
             top: 10
@@ -136,15 +159,15 @@ export class KlineChartComponent implements OnInit, AfterViewInit {
       visualMap: {
         show: false,
         seriesIndex: 1,
-        dimension: 2,
+        // dimension: 1,
         pieces: [
           {
             value: 1,
-            color: volDownColor,
+            color: volUpColor,
           },
           {
             value: -1,
-            color: volUpColor,
+            color: volDownColor,
           }
         ]
       },
@@ -164,7 +187,6 @@ export class KlineChartComponent implements OnInit, AfterViewInit {
       xAxis: [
         {
           type: 'category',
-          data: data.categoryData,
           boundaryGap: false,
           axisLine: { show: false },
           axisTick: { show: false },
@@ -182,7 +204,6 @@ export class KlineChartComponent implements OnInit, AfterViewInit {
         {
           type: 'category',
           gridIndex: 1,
-          data: data.categoryData,
           boundaryGap: false,
           axisLine: { show: true },
           axisTick: { show: true },
@@ -245,13 +266,25 @@ export class KlineChartComponent implements OnInit, AfterViewInit {
         {
           name: 'Dow-Jones index',
           type: 'candlestick',
-          data: data.values,
-          barWidth: '70%',
+          barWidth: '60%',
           itemStyle: {
             color: upColor,
             color0: downColor,
             borderColor: undefined,
             borderColor0: undefined
+          },
+          datasetIndex: 0,
+          dimensions: [
+            { name: 'ds', displayName: '时间' },
+            { name: 'o', displayName: '开盘' },
+            { name: 'c', displayName: '收盘' },
+            { name: 'l', displayName: '最低' },
+            { name: 'h', displayName: '最高' },
+          ],
+          encode: {
+            x: 'ds',
+            y: ['o', 'c', 'l', 'h'],
+            tooltip: ['o', 'c', 'l', 'h']
           },
         },
         {
@@ -259,26 +292,31 @@ export class KlineChartComponent implements OnInit, AfterViewInit {
           type: 'bar',
           xAxisIndex: 1,
           yAxisIndex: 1,
-          data: data.volumes
+          datasetIndex: 0,
+          encode: {
+            x: 'ds',
+            y: ['a', 'up'],
+            tooltip: ['a']
+          },
         },
-        {
-          name: 'MA5',
-          type: 'line',
-          data: calculateMA(5, data),
-          smooth: true,
-          lineStyle: {
-            opacity: 0.5
-          }
-        },
-        {
-          name: 'MA10',
-          type: 'line',
-          data: calculateMA(10, data),
-          smooth: true,
-          lineStyle: {
-            opacity: 0.5
-          }
-        }
+        // {
+        //   name: 'MA5',
+        //   type: 'line',
+        //   data: calculateMA(5, data),
+        //   smooth: true,
+        //   lineStyle: {
+        //     opacity: 0.5
+        //   }
+        // },
+        // {
+        //   name: 'MA10',
+        //   type: 'line',
+        //   data: calculateMA(10, data),
+        //   smooth: true,
+        //   lineStyle: {
+        //     opacity: 0.5
+        //   }
+        // }
       ]
     };
 
