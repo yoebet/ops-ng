@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { ECharts } from 'echarts';
 import * as echarts from 'echarts';
+import { ECharts } from 'echarts';
 import rawData from './d.json'
 import { Kline } from '../../models/kline';
 
@@ -9,6 +9,8 @@ export interface ChartKline extends Kline {
   i: number;
   ds: string;
   up: 1 | -1;
+  ma5?: number;
+  ma10?: number;
 }
 
 @Component({
@@ -43,28 +45,12 @@ export class KlineChartComponent implements OnInit, AfterViewInit {
     var myChart = this.chart;
     var option: EChartsOption;
 
-    // const upColor = 'rgb(51,189,101)';
-    // const downColor = 'rgb(235,75,109)';
-    const upColor = 'rgba(0,202,60,0.7)';
-    const downColor = 'rgba(204,0,28,0.7)';
+    const upColor = 'rgb(51,189,101)';
+    const downColor = 'rgb(235,75,109)';
+    // const upColor = 'rgba(0,202,60,0.7)';
+    // const downColor = 'rgba(204,0,28,0.7)';
     const volUpColor = 'rgba(0,202,60,0.5)';
     const volDownColor = 'rgba(204,0,28,0.5)';
-
-    function calculateMA(dayCount: number, data: { values: number[][] }) {
-      var result = [];
-      for (var i = 0, len = data.values.length; i < len; i++) {
-        if (i < dayCount) {
-          result.push('-');
-          continue;
-        }
-        var sum = 0;
-        for (var j = 0; j < dayCount; j++) {
-          sum += data.values[i - j][1];
-        }
-        result.push(+(sum / dayCount).toFixed(3));
-      }
-      return result;
-    }
 
     let ii = 0;
     const klines: ChartKline[] = (rawData as [ds: string,
@@ -86,7 +72,31 @@ export class KlineChartComponent implements OnInit, AfterViewInit {
         return kl;
       });
 
-    const dimensions: (keyof ChartKline)[] = ['i', 'ds', 'o', 'h', 'l', 'c', 'a', 'up']
+    function calculateMA(data: ChartKline[], n: number) {
+      // const result = [];
+      // debugger;
+      let sum = 0;
+      let lastKl0: ChartKline;
+      for (let i = 0; i < data.length; i++) {
+        const kl = data[i];
+        const fromIndex = i - n + 1;
+        sum += kl.c;
+        if (fromIndex < 0) {
+          // result.push('-');
+          continue;
+        }
+        if (lastKl0) {
+          sum -= lastKl0.c;
+        }
+        kl[`ma${n}`] = sum / n;
+        lastKl0 = data[fromIndex];
+      }
+    }
+
+    calculateMA(klines, 5);
+    calculateMA(klines, 10);
+
+    const dimensions: (keyof ChartKline)[] = ['i', 'ds', 'o', 'h', 'l', 'c', 'a', 'up', 'ma5', 'ma10']
 
     option = {
       animation: false,
@@ -94,12 +104,12 @@ export class KlineChartComponent implements OnInit, AfterViewInit {
         dimensions,
         source: klines as any[],
       },
-      // legend: {
-      //   top: 10,
-      //   // right: 0,
-      //   left: 10,
-      //   data: ['MA5', 'MA10']
-      // },
+      legend: {
+        top: 10,
+        // right: 0,
+        left: 10,
+        data: ['MA5', 'MA10']
+      },
       tooltip: {
         trigger: 'axis',
         axisPointer: {
@@ -299,24 +309,34 @@ export class KlineChartComponent implements OnInit, AfterViewInit {
             tooltip: ['a']
           },
         },
-        // {
-        //   name: 'MA5',
-        //   type: 'line',
-        //   data: calculateMA(5, data),
-        //   smooth: true,
-        //   lineStyle: {
-        //     opacity: 0.5
-        //   }
-        // },
-        // {
-        //   name: 'MA10',
-        //   type: 'line',
-        //   data: calculateMA(10, data),
-        //   smooth: true,
-        //   lineStyle: {
-        //     opacity: 0.5
-        //   }
-        // }
+        {
+          name: 'MA5',
+          type: 'line',
+          datasetIndex: 0,
+          encode: {
+            x: 'ds',
+            y: 'ma5',
+            // tooltip: ['a']
+          },
+          smooth: true,
+          lineStyle: {
+            opacity: 0.5
+          }
+        },
+        {
+          name: 'MA10',
+          type: 'line',
+          datasetIndex: 0,
+          encode: {
+            x: 'ds',
+            y: 'ma10',
+            // tooltip: ['a']
+          },
+          smooth: true,
+          lineStyle: {
+            opacity: 0.5
+          }
+        }
       ]
     };
 
