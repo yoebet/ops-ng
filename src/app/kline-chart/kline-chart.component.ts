@@ -3,12 +3,14 @@ import * as echarts from 'echarts';
 import { ECharts } from 'echarts';
 import rawData from './d.json'
 import { Kline } from '../../models/kline';
+import * as _ from 'lodash';
 
 
 export interface ChartKline extends Kline {
   i: number;
   ds: string;
   up: 1 | -1;
+  wp: number;
   ma5?: number;
   ma10?: number;
 }
@@ -67,26 +69,24 @@ export class KlineChartComponent implements OnInit, AfterViewInit {
           s: 0,
           a,
           ds,
-          up: o >= c ? -1 : 1,
+          up: c >= o ? 1 : -1,
+          wp: (o + c) / 2
         };
         return kl;
       });
 
     function calculateMA(data: ChartKline[], n: number) {
-      // const result = [];
-      // debugger;
       let sum = 0;
       let lastKl0: ChartKline;
       for (let i = 0; i < data.length; i++) {
         const kl = data[i];
         const fromIndex = i - n + 1;
-        sum += kl.c;
+        sum += kl.wp;
         if (fromIndex < 0) {
-          // result.push('-');
           continue;
         }
         if (lastKl0) {
-          sum -= lastKl0.c;
+          sum -= lastKl0.wp;
         }
         kl[`ma${n}`] = sum / n;
         lastKl0 = data[fromIndex];
@@ -133,7 +133,8 @@ export class KlineChartComponent implements OnInit, AfterViewInit {
           const obj: Record<string, number> = {
             top: 10
           };
-          obj[['left', 'right'][+(pos[0] < size.viewSize[0] / 2)]] = 30;
+          const lr = (pos[0] < size.viewSize[0] / 2) ? 'right' : 'left';
+          obj[lr] = 30;
           return obj;
         }
         // extraCssText: 'width: 170px'
@@ -283,7 +284,24 @@ export class KlineChartComponent implements OnInit, AfterViewInit {
             borderColor: undefined,
             borderColor0: undefined
           },
+          // tooltip: {
+          //   valueFormatter: function (v) {
+          //     if (Array.isArray(v)) {
+          //       return v.map(item => {
+          //         if (typeof item === 'number') {
+          //           return item.toPrecision(6)
+          //         }
+          //         return item.toString();
+          //       }).join('\n');
+          //     }
+          //     if (typeof v === 'number') {
+          //       return v.toPrecision(6)
+          //     }
+          //     return v.toString();
+          //   }
+          // },
           datasetIndex: 0,
+          // dimensions: ['date', 'open', 'close', 'highest', 'lowest'],
           dimensions: [
             { name: 'ds', displayName: '时间' },
             { name: 'o', displayName: '开盘' },
