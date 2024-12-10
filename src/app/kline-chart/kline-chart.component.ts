@@ -4,6 +4,8 @@ import { ECharts } from 'echarts';
 import rawData from './d.json'
 import { Kline } from '../../models/kline';
 import * as _ from 'lodash';
+import { numFormatter, priceFormatter, volumeFormatter } from '../../common/utils';
+import { number } from 'echarts/types/dist/echarts';
 
 
 export interface ChartKline extends Kline {
@@ -98,6 +100,15 @@ export class KlineChartComponent implements OnInit, AfterViewInit {
 
     const dimensions: (keyof ChartKline)[] = ['i', 'ds', 'o', 'h', 'l', 'c', 'a', 'up', 'ma5', 'ma10']
 
+    function getValueFormatter(formatter: (v) => string) {
+      return (value, dataIndex: number) => {
+        if (Array.isArray(value)) {
+          return value.map(formatter).join('<br>\n');
+        }
+        return formatter(value as number);
+      }
+    }
+
     option = {
       animation: false,
       dataset: {
@@ -170,7 +181,7 @@ export class KlineChartComponent implements OnInit, AfterViewInit {
       visualMap: {
         show: false,
         seriesIndex: 1,
-        // dimension: 1,
+        dimension: 'up' as any,
         pieces: [
           {
             value: 1,
@@ -302,13 +313,13 @@ export class KlineChartComponent implements OnInit, AfterViewInit {
           // },
           datasetIndex: 0,
           // dimensions: ['date', 'open', 'close', 'highest', 'lowest'],
-          dimensions: [
-            { name: 'ds', displayName: '时间' },
-            { name: 'o', displayName: '开盘' },
-            { name: 'c', displayName: '收盘' },
-            { name: 'l', displayName: '最低' },
-            { name: 'h', displayName: '最高' },
-          ],
+          // dimensions: [
+          //   { name: 'ds', displayName: '时间' },
+          //   { name: 'o', displayName: '开盘' },
+          //   { name: 'c', displayName: '收盘' },
+          //   { name: 'l', displayName: '最低' },
+          //   { name: 'h', displayName: '最高' },
+          // ],
           encode: {
             x: 'ds',
             y: ['o', 'c', 'l', 'h'],
@@ -323,8 +334,11 @@ export class KlineChartComponent implements OnInit, AfterViewInit {
           datasetIndex: 0,
           encode: {
             x: 'ds',
-            y: ['a', 'up'],
-            tooltip: ['a']
+            y: ['a'],
+            // tooltip: ['a']
+          },
+          tooltip: {
+            valueFormatter: getValueFormatter(volumeFormatter)
           },
         },
         {
@@ -339,7 +353,10 @@ export class KlineChartComponent implements OnInit, AfterViewInit {
           smooth: true,
           lineStyle: {
             opacity: 0.5
-          }
+          },
+          tooltip: {
+            valueFormatter: getValueFormatter(priceFormatter)
+          },
         },
         {
           name: 'MA10',
@@ -353,7 +370,10 @@ export class KlineChartComponent implements OnInit, AfterViewInit {
           smooth: true,
           lineStyle: {
             opacity: 0.5
-          }
+          },
+          tooltip: {
+            valueFormatter: getValueFormatter(priceFormatter)
+          },
         }
       ]
     };
