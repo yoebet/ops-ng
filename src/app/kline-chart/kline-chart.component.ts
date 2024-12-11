@@ -3,9 +3,7 @@ import * as echarts from 'echarts';
 import { ECharts } from 'echarts';
 import rawData from './d.json'
 import { Kline } from '../../models/kline';
-import * as _ from 'lodash';
-import { numFormatter, priceFormatter, volumeFormatter } from '../../common/utils';
-import { number } from 'echarts/types/dist/echarts';
+import { priceFormatter, volumeFormatter } from '../../common/utils';
 
 
 export interface ChartKline extends Kline {
@@ -31,6 +29,8 @@ export class KlineChartComponent implements OnInit, AfterViewInit {
 
   chartWidth = '100%';
   chartHeight = 600;
+
+  currentKline: ChartKline;
 
 
   async ngOnInit() {
@@ -103,7 +103,7 @@ export class KlineChartComponent implements OnInit, AfterViewInit {
     function getValueFormatter(formatter: (v) => string) {
       return (value, dataIndex: number) => {
         if (Array.isArray(value)) {
-          return value.map(formatter).join('<br>\n');
+          return value.map(formatter).join(`<br />\n`);
         }
         return formatter(value as number);
       }
@@ -132,10 +132,22 @@ export class KlineChartComponent implements OnInit, AfterViewInit {
         textStyle: {
           color: '#000'
         },
-        // formatter: function (params: any) {
-        //   console.log(params);
-        //   return undefined;
-        // },
+        formatter: (params: any[]) => {
+          const ps = params as {
+            seriesType: string,
+            seriesName: string,
+            seriesIndex: number,
+            marker: string,
+            value: ChartKline
+          }[];
+          // console.log(params);
+          const { marker, value: kl } = ps.find(p => p.seriesType === 'candlestick');
+          this.currentKline = kl;
+          return undefined;
+          // return [[kl.o, 'open'], [kl.h, 'high'], [kl.l, 'low'], [kl.c, 'close']]
+          //   .map(([v, n]) => `${marker} ${n} ${v}`)
+          //   .join('<br/>');
+        },
         // valueFormatter: function (params: any) {
         //   console.log(params);
         //   return undefined;
@@ -147,7 +159,7 @@ export class KlineChartComponent implements OnInit, AfterViewInit {
           const lr = (pos[0] < size.viewSize[0] / 2) ? 'right' : 'left';
           obj[lr] = 30;
           return obj;
-        }
+        },
         // extraCssText: 'width: 170px'
       },
       axisPointer: {
@@ -158,7 +170,20 @@ export class KlineChartComponent implements OnInit, AfterViewInit {
         ],
         label: {
           // show: true,
-          backgroundColor: '#777'
+          backgroundColor: '#777',
+          formatter: (params) => {
+            const { seriesData, axisDimension, axisIndex, value } = params;
+            if (axisDimension === 'y') {
+              // console.log(params);
+              if (axisIndex === 1) { // Volume
+                return volumeFormatter(value as number);
+              }
+              if (typeof value === 'number') {
+                return value.toPrecision(6);
+              }
+            }
+            return value as string;
+          }
         }
       },
       toolbox: {
@@ -245,12 +270,12 @@ export class KlineChartComponent implements OnInit, AfterViewInit {
             show: true
           },
           position: 'right',
-          axisLine: {
-            show: true,
-            lineStyle: {
-              color: 'rgba(0, 0, 0, 0.5)'
-            }
-          }
+          // axisLine: {
+          //   show: true,
+          //   lineStyle: {
+          //     color: 'rgba(0, 0, 0, 0.5)'
+          //   }
+          // }
         },
         {
           scale: true,
@@ -258,12 +283,12 @@ export class KlineChartComponent implements OnInit, AfterViewInit {
           splitNumber: 2,
           position: 'right',
           axisLabel: { show: false },
-          axisLine: {
-            show: true,
-            lineStyle: {
-              color: 'rgba(0, 0, 0, 0.5)'
-            }
-          },
+          // axisLine: {
+          //   show: true,
+          //   lineStyle: {
+          //     color: 'rgba(0, 0, 0, 0.5)'
+          //   }
+          // },
           axisTick: { show: false },
           splitLine: { show: false },
         }
@@ -392,6 +417,13 @@ export class KlineChartComponent implements OnInit, AfterViewInit {
     // });
 
     myChart.setOption(option);
+
+    myChart.on('mouseout', () => {
+      this.currentKline = undefined;
+    });
+    myChart.on('globalout', () => {
+      this.currentKline = undefined;
+    });
 
   }
 }

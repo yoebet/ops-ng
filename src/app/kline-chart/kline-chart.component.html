@@ -1,2 +1,8 @@
-
+<div>Date:
+  <span *ngIf="currentKline">
+  {{ currentKline.ds }}
+    Price open: {{ currentKline.o }}
+    Volume (quote): {{ currentKline.a }}
+    </span>
+</div>
 <div [style.width.px]="chartWidth" [style.height.px]="chartHeight" class="kline-chart" #chart></div>
