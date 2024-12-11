@@ -171,19 +171,19 @@ export class KlineChartComponent implements OnInit, AfterViewInit {
         label: {
           // show: true,
           backgroundColor: '#777',
-          formatter: (params) => {
-            const { seriesData, axisDimension, axisIndex, value } = params;
-            if (axisDimension === 'y') {
-              // console.log(params);
-              if (axisIndex === 1) { // Volume
-                return volumeFormatter(value as number);
-              }
-              if (typeof value === 'number') {
-                return value.toPrecision(6);
-              }
-            }
-            return value as string;
-          }
+          // formatter: (params) => {
+          //   const { seriesData, axisDimension, axisIndex, value } = params;
+          //   if (axisDimension === 'y') {
+          //     // console.log(params);
+          //     if (axisIndex === 1) { // Volume
+          //       return volumeFormatter(value as number);
+          //     }
+          //     if (typeof value === 'number') {
+          //       return value.toPrecision(6);
+          //     }
+          //   }
+          //   return value as string;
+          // }
         }
       },
       toolbox: {
@@ -233,14 +233,13 @@ export class KlineChartComponent implements OnInit, AfterViewInit {
       ],
       xAxis: [
         {
-          type: 'category',
-          boundaryGap: false,
+          type: 'time',
           axisLine: { show: false },
           axisTick: { show: false },
           axisLabel: { show: false },
           // splitLine: { show: true },
-          min: 'dataMin',
-          max: 'dataMax',
+          // min: 'dataMin',
+          // max: 'dataMax',
           axisPointer: {
             z: 100,
             label: {
@@ -249,15 +248,14 @@ export class KlineChartComponent implements OnInit, AfterViewInit {
           }
         },
         {
-          type: 'category',
+          type: 'time',
           gridIndex: 1,
-          boundaryGap: false,
           axisLine: { show: true },
           axisTick: { show: true },
           axisLabel: { show: true },
           // splitLine: { show: true },
-          min: 'dataMin',
-          max: 'dataMax',
+          // min: 'dataMin',
+          // max: 'dataMax',
           axisPointer: {
             z: 100
           }
@@ -353,7 +351,7 @@ export class KlineChartComponent implements OnInit, AfterViewInit {
         },
         {
           name: 'Volume',
-          type: 'bar',
+          // type: 'bar',
           xAxisIndex: 1,
           yAxisIndex: 1,
           datasetIndex: 0,
@@ -361,6 +359,51 @@ export class KlineChartComponent implements OnInit, AfterViewInit {
             x: 'ds',
             y: ['a'],
             // tooltip: ['a']
+          },
+          type: 'custom',
+          renderItem: function (params, api) {
+            const ts = api.value('ds') as number;
+            var amount = api.value('a') as number;
+            // const v2 = api.value(2);
+            const HOUR = 60 * 60 * 1000;
+            var start = api.coord([ts - 8 * HOUR, amount]);
+            var end = api.coord([ts + 8 * HOUR, amount]);
+            const s = api.size([0, amount]);
+            var height = s[1];
+
+            // console.log(params);
+
+            // Cartesian2D
+            const coordSys = params.coordSys as any;
+
+            const shape = {
+              x: start[0],
+              y: start[1],
+              width: end[0] - start[0],
+              height: height
+            };
+            // console.log(shape);
+
+            // console.log(api.style());
+
+            // var rectShape = echarts.graphic.clipRectByRect(shape, {
+            //   x: coordSys.x,
+            //   y: coordSys.y,
+            //   width: coordSys.width,
+            //   height: coordSys.height
+            // });
+            //
+            // return rectShape && {
+            //   type: 'rect',
+            //   shape: rectShape,
+            //   style: api.style()
+            // };
+            
+            return {
+              type: 'rect',
+              shape: shape,
+              style: api.style()
+            };
           },
           tooltip: {
             valueFormatter: getValueFormatter(volumeFormatter)
