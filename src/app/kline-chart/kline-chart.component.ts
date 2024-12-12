@@ -1,16 +1,14 @@
 import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import * as echarts from 'echarts';
 import { ECharts } from 'echarts';
-import rawData from './d.json'
+import rawData from './k1d.json'
 import { Kline } from '../../models/kline';
 import { priceFormatter, volumeFormatter } from '../../common/utils';
 
 
 export interface ChartKline extends Kline {
   i: number;
-  ds: string;
   up: 1 | -1;
-  wp: number;
   ma5?: number;
   ma10?: number;
 }
@@ -57,23 +55,18 @@ export class KlineChartComponent implements OnInit, AfterViewInit {
     const volDownColor = 'rgba(204,0,28,0.5)';
 
     let ii = 0;
-    const klines: ChartKline[] = (rawData as [ds: string,
-      o: number, c: number, h: number, l: number,
-      a: number][])
-      .map(([ds, o, c, h, l, a]) => {
-        const kl: ChartKline = {
-          i: ii++,
-          ts: 0,
-          o,
-          h,
-          l,
-          c,
-          s: 0,
-          a,
-          ds,
-          up: c >= o ? 1 : -1,
-          wp: (o + c) / 2
-        };
+    const klines: ChartKline[] = rawData
+      .map((k: Kline) => {
+        if (k.p_ch == null) {
+          k.p_ch = k.close - k.open;
+          k.p_avg = k.size > 0 ? k.amount / k.size : 0;
+          k.p_cp = (k.p_ch / k.open) * 100.0;
+          k.p_ap = (Math.abs(k.high - k.low) / k.low) * 100.0;
+        }
+        const kl = k as ChartKline;
+        kl.i = ii;
+        kl.up = kl.close >= kl.open ? 1 : -1;
+        kl.time = new Date(kl.time).getTime() as any;
         return kl;
       });
 
@@ -83,12 +76,12 @@ export class KlineChartComponent implements OnInit, AfterViewInit {
       for (let i = 0; i < data.length; i++) {
         const kl = data[i];
         const fromIndex = i - n + 1;
-        sum += kl.wp;
+        sum += kl.p_avg;
         if (fromIndex < 0) {
           continue;
         }
         if (lastKl0) {
-          sum -= lastKl0.wp;
+          sum -= lastKl0.p_avg;
         }
         kl[`ma${n}`] = sum / n;
         lastKl0 = data[fromIndex];
@@ -98,7 +91,11 @@ export class KlineChartComponent implements OnInit, AfterViewInit {
     calculateMA(klines, 5);
     calculateMA(klines, 10);
 
-    const dimensions: (keyof ChartKline)[] = ['i', 'ds', 'o', 'h', 'l', 'c', 'a', 'up', 'ma5', 'ma10']
+    const dimensions: (keyof ChartKline)[] = [
+      'i', 'time',
+      'open', 'high', 'low', 'close',
+      'amount', 'up', 'ma5', 'ma10'
+    ]
 
     function getValueFormatter(formatter: (v) => string) {
       return (value, dataIndex: number) => {
@@ -108,6 +105,48 @@ export class KlineChartComponent implements OnInit, AfterViewInit {
         return formatter(value as number);
       }
     }
+
+    const volBarRenderItem: echarts.CustomSeriesRenderItem = function (params, api) {
+      const ts = api.value('time') as number;
+      var amount = api.value('amount') as number;
+      // const v2 = api.value(2);
+      const HOUR = 60 * 60 * 1000;
+      var start = api.coord([ts - 8 * HOUR, amount]);
+      var end = api.coord([ts + 8 * HOUR, amount]);
+      const s = api.size([0, amount]);
+      var height = s[1];
+
+      // console.log(params);
+
+      const shape = {
+        x: start[0],
+        y: start[1],
+        width: end[0] - start[0],
+        height: height
+      };
+
+      return {
+        type: 'rect',
+        shape: shape,
+        style: api.style()
+        // style: {
+        //   "fill": "rgba(0,202,60,0.5)",
+        //   "textPosition": "inside",
+        //   "textDistance": 5,
+        //   "fontStyle": "normal",
+        //   "fontWeight": "normal",
+        //   "fontSize": 12,
+        //   "fontFamily": "sans-serif",
+        //   "textFill": "#fff",
+        //   "textStroke": "rgba(0,202,60,0.5)",
+        //   "textStrokeWidth": 2,
+        //   "text": null,
+        //   "legacy": true
+        // }
+      };
+    };
+
+    console.log(klines);
 
     option = {
       animation: false,
@@ -168,23 +207,24 @@ export class KlineChartComponent implements OnInit, AfterViewInit {
             xAxisIndex: 'all'
           }
         ],
-        label: {
-          // show: true,
-          backgroundColor: '#777',
-          // formatter: (params) => {
-          //   const { seriesData, axisDimension, axisIndex, value } = params;
-          //   if (axisDimension === 'y') {
-          //     // console.log(params);
-          //     if (axisIndex === 1) { // Volume
-          //       return volumeFormatter(value as number);
-          //     }
-          //     if (typeof value === 'number') {
-          //       return value.toPrecision(6);
-          //     }
-          //   }
-          //   return value as string;
-          // }
-        }
+        // label: {
+        //   // show: true,
+        //   backgroundColor: '#777',
+        //   // formatter: (params) => {
+        //   //   const { seriesData, axisDimension, axisIndex, value } = params;
+        //   //   console.log(params);
+        //   //   if (axisDimension === 'y') {
+        //   //     // console.log(params);
+        //   //     if (axisIndex === 1) { // Volume
+        //   //       return volumeFormatter(value as number);
+        //   //     }
+        //   //     if (typeof value === 'number') {
+        //   //       return value.toPrecision(6);
+        //   //     }
+        //   //   }
+        //   //   return value.toString();
+        //   // }
+        // }
       },
       toolbox: {
         feature: {
@@ -276,7 +316,7 @@ export class KlineChartComponent implements OnInit, AfterViewInit {
           // }
         },
         {
-          scale: true,
+          scale: false,
           gridIndex: 1,
           splitNumber: 2,
           position: 'right',
@@ -295,21 +335,21 @@ export class KlineChartComponent implements OnInit, AfterViewInit {
         {
           type: 'inside',
           xAxisIndex: [0, 1],
-          start: 98,
-          end: 100
+          start: 0,
+          end: 50
         },
         {
           type: 'slider',
           // show: true,
           xAxisIndex: [0, 1],
           top: '85%',
-          start: 98,
-          end: 100
+          start: 0,
+          end: 50
         }
       ],
       series: [
         {
-          name: 'Dow-Jones index',
+          name: 'Kline',
           type: 'candlestick',
           barWidth: '60%',
           itemStyle: {
@@ -335,18 +375,17 @@ export class KlineChartComponent implements OnInit, AfterViewInit {
           //   }
           // },
           datasetIndex: 0,
-          // dimensions: ['date', 'open', 'close', 'highest', 'lowest'],
           // dimensions: [
-          //   { name: 'ds', displayName: '时间' },
-          //   { name: 'o', displayName: '开盘' },
-          //   { name: 'c', displayName: '收盘' },
-          //   { name: 'l', displayName: '最低' },
-          //   { name: 'h', displayName: '最高' },
+          //   { name: 'time', displayName: '时间' },
+          //   { name: 'open', displayName: '开盘' },
+          //   { name: 'close', displayName: '收盘' },
+          //   { name: 'low', displayName: '最低' },
+          //   { name: 'high', displayName: '最高' },
           // ],
           encode: {
-            x: 'ds',
-            y: ['o', 'c', 'l', 'h'],
-            tooltip: ['o', 'c', 'l', 'h']
+            x: 'time',
+            y: ['open', 'close', 'low', 'high'],
+            tooltip: ['open', 'close', 'low', 'high'],
           },
         },
         {
@@ -356,55 +395,12 @@ export class KlineChartComponent implements OnInit, AfterViewInit {
           yAxisIndex: 1,
           datasetIndex: 0,
           encode: {
-            x: 'ds',
-            y: ['a'],
-            // tooltip: ['a']
+            x: 'time',
+            y: ['amount'],
+            // tooltip: ['amount']
           },
           type: 'custom',
-          renderItem: function (params, api) {
-            const ts = api.value('ds') as number;
-            var amount = api.value('a') as number;
-            // const v2 = api.value(2);
-            const HOUR = 60 * 60 * 1000;
-            var start = api.coord([ts - 8 * HOUR, amount]);
-            var end = api.coord([ts + 8 * HOUR, amount]);
-            const s = api.size([0, amount]);
-            var height = s[1];
-
-            // console.log(params);
-
-            // Cartesian2D
-            const coordSys = params.coordSys as any;
-
-            const shape = {
-              x: start[0],
-              y: start[1],
-              width: end[0] - start[0],
-              height: height
-            };
-            // console.log(shape);
-
-            // console.log(api.style());
-
-            // var rectShape = echarts.graphic.clipRectByRect(shape, {
-            //   x: coordSys.x,
-            //   y: coordSys.y,
-            //   width: coordSys.width,
-            //   height: coordSys.height
-            // });
-            //
-            // return rectShape && {
-            //   type: 'rect',
-            //   shape: rectShape,
-            //   style: api.style()
-            // };
-            
-            return {
-              type: 'rect',
-              shape: shape,
-              style: api.style()
-            };
-          },
+          renderItem: volBarRenderItem,
           tooltip: {
             valueFormatter: getValueFormatter(volumeFormatter)
           },
@@ -414,7 +410,7 @@ export class KlineChartComponent implements OnInit, AfterViewInit {
           type: 'line',
           datasetIndex: 0,
           encode: {
-            x: 'ds',
+            x: 'time',
             y: 'ma5',
             // tooltip: ['a']
           },
@@ -431,7 +427,7 @@ export class KlineChartComponent implements OnInit, AfterViewInit {
           type: 'line',
           datasetIndex: 0,
           encode: {
-            x: 'ds',
+            x: 'time',
             y: 'ma10',
             // tooltip: ['a']
           },
