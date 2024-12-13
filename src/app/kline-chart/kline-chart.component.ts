@@ -91,6 +91,8 @@ export class KlineChartComponent extends KlineChartBaseComponent {
         const kl = k as ChartKline;
         kl.i = ii;
         kl.up = kl.close >= kl.open ? 1 : -1;
+        kl.buyOrder = Math.random() < 0.1 ? {} as any : undefined;
+        kl.sellOrder = Math.random() < 0.1 ? {} as any : undefined;
         return kl;
       });
 

@@ -9,6 +9,11 @@ import * as _ from 'lodash';
 
 type EChartsOption = echarts.EChartsOption;
 
+export interface KlineOrders {
+  side: 'buy' | 'sell';
+  count: number;
+  avgPrice: number;
+}
 
 export interface ChartKline extends Kline {
   i: number;
@@ -18,6 +23,8 @@ export interface ChartKline extends Kline {
   bbMa?: number;
   bbUpper?: number;
   bbLower?: number;
+  buyOrder?: KlineOrders;
+  sellOrder?: KlineOrders;
 }
 
 @Component({
@@ -66,7 +73,8 @@ export abstract class KlineChartBaseComponent implements OnInit, AfterViewInit {
   getDimensions(): string[] {
     return (this.basicDimensions as string[])
       .concat(this.mas.map(m => `ma${m}`))
-      .concat(this.bollingerBandNames.map(b => b.field));
+      .concat(this.bollingerBandNames.map(b => b.field))
+      .concat(['buyOrder', 'sellOrder']);
   }
 
 
@@ -88,7 +96,6 @@ export abstract class KlineChartBaseComponent implements OnInit, AfterViewInit {
   }
 
   buildChartOption(): EChartsOption {
-
     const dimensions = this.getDimensions();
     const chartData = this.chartData;
     const series = this.buildSeries();
@@ -313,7 +320,7 @@ export abstract class KlineChartBaseComponent implements OnInit, AfterViewInit {
         ['O', kl.open], ['C', kl.close], ['H', kl.high], ['L', kl.low],
         ['CH', `${kl.p_cp.toFixed(2)}%`],
         ['AP', `${kl.p_ap.toFixed(2)}%`],
-        ['BVP', `${kl.v_bp.toFixed(2)}%`]
+        ['Buy', `${kl.v_bp.toFixed(2)}%`]
       ].map(nv => nv.join(' ')).join('  ');
       info = `${new Date(kl.ts).toISOString()} ${vs}`;
     }
@@ -333,12 +340,126 @@ export abstract class KlineChartBaseComponent implements OnInit, AfterViewInit {
     if (!this.chart) {
       return;
     }
+
+    const klines = this.chartData.klines;
+    const buyKls = klines.filter(k => k.buyOrder);
+    const sellKls = klines.filter(k => k.sellOrder);
+
     const dimensions = this.getDimensions();
     this.chart.setOption({
       dimensions,
       dataset: {
         source: this.chartData.klines,
       },
+      series: [
+        {
+          name: 'Kline',
+          type: 'candlestick',
+          // barWidth: '60%',
+          // itemStyle: {
+          //   color: this.upColor,
+          //   color0: this.downColor,
+          //   borderColor: undefined,
+          //   borderColor0: undefined
+          // },
+          // datasetIndex: 0,
+          // encode: {
+          //   x: 'ts',
+          //   y: ['open', 'close', 'low', 'high'],
+          //   // tooltip: ['open', 'close', 'low', 'high'],
+          // },
+          markPoint: {
+            name: 'NN',
+            // 'circle', 'rect', 'roundRect', 'triangle', 'diamond', 'pin', 'arrow', 'none'
+            // symbol: 'arrow',
+            // symbolSize: 18,
+            tooltip: {
+              formatter: function (param) {
+                return param.name + ' ' + (param.value || '');
+              },
+              trigger: 'item',
+            },
+            label: {
+              formatter: function (param) {
+                return param != null ? Math.round(param.value as number) + '' : '';
+              }
+            },
+            data: [
+              {
+                name: 'High',
+                type: 'max',
+                valueDim: 'high',
+                label: {
+                  formatter: function (param) {
+                    return 'H';
+                  }
+                },
+                itemStyle: {
+                  color: this.upColor,
+                  opacity: 0.9,
+                },
+                // symbol: 'rect',
+              },
+              {
+                name: 'Low',
+                type: 'min',
+                valueDim: 'low',
+                label: {
+                  formatter: function (param) {
+                    return '\n\nL';
+                  }
+                },
+                itemStyle: {
+                  color: this.downColor,
+                  opacity: 0.9,
+                },
+                symbolRotate: 180,
+              },
+              ...buyKls.map(k => (
+                {
+                  name: 'Buy',
+                  // coord: [k.ts, 3300],
+                  symbol: 'circle',
+                  symbolSize: 18,
+                  // symbolRotate: 180,
+                  xAxis: k.ts,
+                  yAxis: k.low,
+                  // valueDim: 'low',
+                  value: k,
+                  itemStyle: {
+                    color: 'rgb(41,200,85)',
+                    opacity: 0.9,
+                  },
+                  label: {
+                    formatter: function (param) {
+                      return 'B';
+                    }
+                  }
+                })),
+              ...sellKls.map(k => (
+                {
+                  name: 'Sell',
+                  // coord: [k.ts, 3300],
+                  symbol: 'circle',
+                  symbolSize: 18,
+                  xAxis: k.ts,
+                  yAxis: k.high,
+                  // valueDim: 'high',
+                  value: k,
+                  itemStyle: {
+                    color: 'rgb(200,60,85)',
+                    opacity: 0.9,
+                  },
+                  label: {
+                    formatter: function (param) {
+                      return 'S';
+                    }
+                  }
+                })),
+            ],
+          }
+        }
+      ]
     } as EChartsOption);
   }
 
@@ -397,7 +518,9 @@ export abstract class KlineChartBaseComponent implements OnInit, AfterViewInit {
       align: 'auto',
       // right: 10,
       // left: 10,
-      data: this.mas.map(m => `MA${m}`).concat(this.bollingerBandNames.map(b => b.name))
+      data: this.mas.map(m => `MA${m}`)
+        .concat(this.bollingerBandNames.map(b => b.name))
+        .concat('MM')
     }
   }
 
@@ -418,6 +541,7 @@ export abstract class KlineChartBaseComponent implements OnInit, AfterViewInit {
         encode: {
           x: 'ts',
           y: ['open', 'close', 'low', 'high'],
+          // tooltip: ['open', 'close', 'low', 'high'],
         },
       },
       {
@@ -436,7 +560,8 @@ export abstract class KlineChartBaseComponent implements OnInit, AfterViewInit {
         tooltip: {
           valueFormatter: this.getValueFormatter(volumeFormatter)
         },
-      },]
+      }
+    ]
   }
 
   protected buildSeries(): EChartsOption['series'] {
