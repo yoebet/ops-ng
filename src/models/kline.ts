@@ -1,5 +1,9 @@
+import { TimeLevel } from './time-level';
+
 export interface Kline {
-  time: string;
+  ts: number;
+  time?: string;
+  // time?: Date;
   size: number;
   amount: number;
   open: number;
@@ -10,9 +14,14 @@ export interface Kline {
   ba?: number;
   ss?: number;
   sa?: number;
-  // tds?: number;
   p_ch?: number;
   p_avg?: number;
   p_cp?: number;
   p_ap?: number;
+  v_bp?: number;
+}
+
+export interface ES {
+  ex: string;
+  symbol: string;
 }

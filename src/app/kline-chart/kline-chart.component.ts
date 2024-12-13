@@ -1,16 +1,23 @@
-import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
 import * as echarts from 'echarts';
 import { ECharts } from 'echarts';
 import rawData from './k1d.json'
-import { Kline } from '../../models/kline';
+import { ES, Kline } from '../../models/kline';
 import { priceFormatter, volumeFormatter } from '../../common/utils';
+import { TimeLevel } from '../../models/time-level';
+import * as _ from 'lodash';
+
+type EChartsOption = echarts.EChartsOption;
 
 
 export interface ChartKline extends Kline {
   i: number;
   up: 1 | -1;
-  ma5?: number;
-  ma10?: number;
+  // ma5?: number;
+  // ma10?: number;
+  bbMa?: number;
+  bbUpper?: number;
+  bbLower?: number;
 }
 
 @Component({
@@ -28,138 +35,82 @@ export class KlineChartComponent implements OnInit, AfterViewInit {
   chartWidth = '100%';
   chartHeight = 600;
 
-  currentKline: ChartKline;
+  chartInitialized = false;
 
+  windowWidth: number;
+  resetChartHandler: ReturnType<typeof setTimeout>;
+  mas = [/*10, 20*/];
+  bollingerBandOptions = { n: 20, times: 2 }
+  // protected upColor = 'rgba(0,202,60,0.7)';
+  basicDimensions: (keyof ChartKline)[] = [
+    'i', 'ts',
+    'open', 'high', 'low', 'close',
+    'amount', 'up'
+  ];
+  chartData: {
+    es: ES;
+    timeLevel: TimeLevel;
+    klines?: ChartKline[];
+    currentKline?: ChartKline;
+  }
+  protected upColor = 'rgb(51,189,101)';
+  protected downColor = 'rgb(235,75,109)';
+  // protected downColor = 'rgba(204,0,28,0.7)';
+  protected volUpColor = 'rgba(0,202,60,0.5)';
+  protected volDownColor = 'rgba(204,0,28,0.5)';
 
   async ngOnInit() {
   }
 
-  async ngAfterViewInit() {
+  ngAfterViewInit() {
+    this.resetChart();
+    setTimeout(() => {
+      this.updateData();
+    }, 1000);
+  }
 
-    type EChartsOption = echarts.EChartsOption;
+  getDimensions(): string[] {
+    return (this.basicDimensions as string[])
+      .concat(this.mas.map(m => `ma${m}`))
+      .concat('bbUpper', 'bbMa', 'bbLower');
+  }
 
-    const holder = this.chartDiv!.nativeElement as HTMLDivElement;
-    this.chart = echarts.init(holder, null,
-      {
-        // renderer: 'svg',
-        // locale: 'ZH'
-      });
-    var myChart = this.chart;
-    var option: EChartsOption;
 
-    const upColor = 'rgb(51,189,101)';
-    const downColor = 'rgb(235,75,109)';
-    // const upColor = 'rgba(0,202,60,0.7)';
-    // const downColor = 'rgba(204,0,28,0.7)';
-    const volUpColor = 'rgba(0,202,60,0.5)';
-    const volDownColor = 'rgba(204,0,28,0.5)';
-
-    let ii = 0;
-    const klines: ChartKline[] = rawData
-      .map((k: Kline) => {
-        if (k.p_ch == null) {
-          k.p_ch = k.close - k.open;
-          k.p_avg = k.size > 0 ? k.amount / k.size : 0;
-          k.p_cp = (k.p_ch / k.open) * 100.0;
-          k.p_ap = (Math.abs(k.high - k.low) / k.low) * 100.0;
-        }
-        const kl = k as ChartKline;
-        kl.i = ii;
-        kl.up = kl.close >= kl.open ? 1 : -1;
-        kl.time = new Date(kl.time).getTime() as any;
-        return kl;
-      });
-
-    function calculateMA(data: ChartKline[], n: number) {
-      let sum = 0;
-      let lastKl0: ChartKline;
-      for (let i = 0; i < data.length; i++) {
-        const kl = data[i];
-        const fromIndex = i - n + 1;
-        sum += kl.p_avg;
-        if (fromIndex < 0) {
-          continue;
-        }
-        if (lastKl0) {
-          sum -= lastKl0.p_avg;
-        }
-        kl[`ma${n}`] = sum / n;
-        lastKl0 = data[fromIndex];
-      }
+  @HostListener('window:resize', ['$event'])
+  onResize(event) {
+    if (this.windowWidth === window.innerWidth) {
+      return;
     }
-
-    calculateMA(klines, 5);
-    calculateMA(klines, 10);
-
-    const dimensions: (keyof ChartKline)[] = [
-      'i', 'time',
-      'open', 'high', 'low', 'close',
-      'amount', 'up', 'ma5', 'ma10'
-    ]
-
-    function getValueFormatter(formatter: (v) => string) {
-      return (value, dataIndex: number) => {
-        if (Array.isArray(value)) {
-          return value.map(formatter).join(`<br />\n`);
-        }
-        return formatter(value as number);
-      }
+    this.windowWidth = window.innerWidth;
+    if (!this.chartInitialized) {
+      return;
     }
+    if (this.resetChartHandler) {
+      clearTimeout(this.resetChartHandler);
+    }
+    this.resetChartHandler = setTimeout(() => {
+      this.resetChart();
+    }, 200);
+  }
 
-    const volBarRenderItem: echarts.CustomSeriesRenderItem = function (params, api) {
-      const ts = api.value('time') as number;
-      var amount = api.value('amount') as number;
-      // const v2 = api.value(2);
-      const HOUR = 60 * 60 * 1000;
-      var start = api.coord([ts - 8 * HOUR, amount]);
-      var end = api.coord([ts + 8 * HOUR, amount]);
-      const s = api.size([0, amount]);
-      var height = s[1];
+  buildChartOption(): EChartsOption {
 
-      // console.log(params);
-
-      const shape = {
-        x: start[0],
-        y: start[1],
-        width: end[0] - start[0],
-        height: height
-      };
-
-      return {
-        type: 'rect',
-        shape: shape,
-        style: api.style()
-        // style: {
-        //   "fill": "rgba(0,202,60,0.5)",
-        //   "textPosition": "inside",
-        //   "textDistance": 5,
-        //   "fontStyle": "normal",
-        //   "fontWeight": "normal",
-        //   "fontSize": 12,
-        //   "fontFamily": "sans-serif",
-        //   "textFill": "#fff",
-        //   "textStroke": "rgba(0,202,60,0.5)",
-        //   "textStrokeWidth": 2,
-        //   "text": null,
-        //   "legacy": true
-        // }
-      };
-    };
-
-    console.log(klines);
-
-    option = {
+    const dimensions = this.getDimensions();
+    const chartData = this.chartData;
+    const series = this.buildSeries();
+    const legend = this.getLegendOptions();
+    const option: EChartsOption = {
       animation: false,
+      title: {
+        top: 10,
+        text: `Candlestick`,
+        subtext: ``
+      },
       dataset: {
         dimensions,
-        source: klines as any[],
+        source: chartData?.klines || [] as any[],
       },
-      legend: {
-        top: 10,
-        // right: 0,
-        left: 10,
-        data: ['MA5', 'MA10']
-      },
+      legend,
       tooltip: {
         trigger: 'axis',
         axisPointer: {
@@ -172,34 +123,23 @@ export class KlineChartComponent implements OnInit, AfterViewInit {
           color: '#000'
         },
         formatter: (params: any[]) => {
+          if (!this.chartData) {
+            return undefined;
+          }
           const ps = params as {
             seriesType: string,
             seriesName: string,
             seriesIndex: number,
-            marker: string,
             value: ChartKline
           }[];
           // console.log(params);
-          const { marker, value: kl } = ps.find(p => p.seriesType === 'candlestick');
-          this.currentKline = kl;
+          const { value: kl } = ps.find(p => p.seriesType === 'candlestick');
+          this.chartData.currentKline = kl;
+          setTimeout(() => {
+            this.updateTitle();
+          }, 0);
           return undefined;
-          // return [[kl.o, 'open'], [kl.h, 'high'], [kl.l, 'low'], [kl.c, 'close']]
-          //   .map(([v, n]) => `${marker} ${n} ${v}`)
-          //   .join('<br/>');
         },
-        // valueFormatter: function (params: any) {
-        //   console.log(params);
-        //   return undefined;
-        // },
-        position: function (pos, params, el, elRect, size) {
-          const obj: Record<string, number> = {
-            top: 10
-          };
-          const lr = (pos[0] < size.viewSize[0] / 2) ? 'right' : 'left';
-          obj[lr] = 30;
-          return obj;
-        },
-        // extraCssText: 'width: 170px'
       },
       axisPointer: {
         link: [
@@ -207,24 +147,6 @@ export class KlineChartComponent implements OnInit, AfterViewInit {
             xAxisIndex: 'all'
           }
         ],
-        // label: {
-        //   // show: true,
-        //   backgroundColor: '#777',
-        //   // formatter: (params) => {
-        //   //   const { seriesData, axisDimension, axisIndex, value } = params;
-        //   //   console.log(params);
-        //   //   if (axisDimension === 'y') {
-        //   //     // console.log(params);
-        //   //     if (axisIndex === 1) { // Volume
-        //   //       return volumeFormatter(value as number);
-        //   //     }
-        //   //     if (typeof value === 'number') {
-        //   //       return value.toPrecision(6);
-        //   //     }
-        //   //   }
-        //   //   return value.toString();
-        //   // }
-        // }
       },
       toolbox: {
         feature: {
@@ -250,11 +172,11 @@ export class KlineChartComponent implements OnInit, AfterViewInit {
         pieces: [
           {
             value: 1,
-            color: volUpColor,
+            color: this.volUpColor,
           },
           {
             value: -1,
-            color: volDownColor,
+            color: this.volDownColor,
           }
         ]
       },
@@ -262,13 +184,29 @@ export class KlineChartComponent implements OnInit, AfterViewInit {
         {
           left: 20,
           right: 80,
-          height: '50%'
+          height: '55%'
         },
         {
           left: 20,
           right: 80,
-          top: '58%',
+          top: '63%',
           height: '16%'
+        }
+      ],
+      dataZoom: [
+        {
+          type: 'inside',
+          xAxisIndex: [0, 1],
+          start: 0,
+          end: 50
+        },
+        {
+          type: 'slider',
+          // show: true,
+          xAxisIndex: [0, 1],
+          top: '85%',
+          start: 0,
+          end: 50
         }
       ],
       xAxis: [
@@ -331,138 +269,291 @@ export class KlineChartComponent implements OnInit, AfterViewInit {
           splitLine: { show: false },
         }
       ],
-      dataZoom: [
-        {
-          type: 'inside',
-          xAxisIndex: [0, 1],
-          start: 0,
-          end: 50
-        },
-        {
-          type: 'slider',
-          // show: true,
-          xAxisIndex: [0, 1],
-          top: '85%',
-          start: 0,
-          end: 50
-        }
-      ],
-      series: [
-        {
-          name: 'Kline',
-          type: 'candlestick',
-          barWidth: '60%',
-          itemStyle: {
-            color: upColor,
-            color0: downColor,
-            borderColor: undefined,
-            borderColor0: undefined
-          },
-          // tooltip: {
-          //   valueFormatter: function (v) {
-          //     if (Array.isArray(v)) {
-          //       return v.map(item => {
-          //         if (typeof item === 'number') {
-          //           return item.toPrecision(6)
-          //         }
-          //         return item.toString();
-          //       }).join('\n');
-          //     }
-          //     if (typeof v === 'number') {
-          //       return v.toPrecision(6)
-          //     }
-          //     return v.toString();
-          //   }
-          // },
-          datasetIndex: 0,
-          // dimensions: [
-          //   { name: 'time', displayName: '时间' },
-          //   { name: 'open', displayName: '开盘' },
-          //   { name: 'close', displayName: '收盘' },
-          //   { name: 'low', displayName: '最低' },
-          //   { name: 'high', displayName: '最高' },
-          // ],
-          encode: {
-            x: 'time',
-            y: ['open', 'close', 'low', 'high'],
-            tooltip: ['open', 'close', 'low', 'high'],
-          },
-        },
-        {
-          name: 'Volume',
-          // type: 'bar',
-          xAxisIndex: 1,
-          yAxisIndex: 1,
-          datasetIndex: 0,
-          encode: {
-            x: 'time',
-            y: ['amount'],
-            // tooltip: ['amount']
-          },
-          type: 'custom',
-          renderItem: volBarRenderItem,
-          tooltip: {
-            valueFormatter: getValueFormatter(volumeFormatter)
-          },
-        },
-        {
-          name: 'MA5',
-          type: 'line',
-          datasetIndex: 0,
-          encode: {
-            x: 'time',
-            y: 'ma5',
-            // tooltip: ['a']
-          },
-          smooth: true,
-          lineStyle: {
-            opacity: 0.5
-          },
-          tooltip: {
-            valueFormatter: getValueFormatter(priceFormatter)
-          },
-        },
-        {
-          name: 'MA10',
-          type: 'line',
-          datasetIndex: 0,
-          encode: {
-            x: 'time',
-            y: 'ma10',
-            // tooltip: ['a']
-          },
-          smooth: true,
-          lineStyle: {
-            opacity: 0.5
-          },
-          tooltip: {
-            valueFormatter: getValueFormatter(priceFormatter)
-          },
-        }
-      ]
+      series
     };
 
-    myChart.setOption(option, true);
+    return option;
+  }
 
-    // myChart.dispatchAction({
-    //   type: 'brush',
-    //   areas: [
-    //     {
-    //       brushType: 'lineX',
-    //       coordRange: ['2016-06-02', '2016-06-20'],
-    //       xAxisIndex: 0
-    //     }
-    //   ]
-    // });
+  setupChart(): void {
+    const option = this.buildChartOption();
+    if (!option) {
+      return;
+    }
+    const chart = this.chart;
+    chart.setOption(option, true);
+    const clearCurrentKline = () => {
+      if (this.chartData) {
+        this.chartData.currentKline = undefined;
+      }
+      this.updateTitle()
+    };
+    chart.on('mouseout', clearCurrentKline);
+    chart.on('globalout', clearCurrentKline);
+  }
 
-    myChart.setOption(option);
-
-    myChart.on('mouseout', () => {
-      this.currentKline = undefined;
+  resetChart(): void {
+    if (this.chart) {
+      this.chart.dispose();
+    }
+    const holder = this.chartDiv!.nativeElement as HTMLDivElement;
+    this.chart = echarts.init(holder, null, {
+      // renderer: 'svg',
+      // locale: 'ZH'
     });
-    myChart.on('globalout', () => {
-      this.currentKline = undefined;
-    });
 
+    this.setupChart();
+    this.chartInitialized = true;
+  }
+
+  updateTitle() {
+    const { es, timeLevel, currentKline: kl } = this.chartData || {};
+    const title = es && timeLevel ? `${es.ex} ${es.symbol} ${timeLevel.interval}` : '';
+    let info: string;
+    if (kl) {
+      const vs = [
+        ['O', kl.open], ['C', kl.close], ['H', kl.high], ['L', kl.low],
+        ['CH', `${kl.p_cp.toFixed(2)}%`],
+        ['AP', `${kl.p_ap.toFixed(2)}%`],
+        ['BVP', `${kl.v_bp.toFixed(2)}%`]
+      ].map(nv => nv.join(' ')).join('  ');
+      info = `${new Date(kl.ts).toISOString()} ${vs}`;
+    }
+    this.chart.setOption({
+      title: {
+        text: title,
+        subtext: info
+      }
+    });
+  }
+
+  updateData() {
+    const klines = this.transformKline(rawData as any[] as Kline[]);
+    this.chartData = {
+      es: { ex: 'binance', symbol: 'BTC/USDT' },
+      timeLevel: TimeLevel.TL1mTo1d.slice(-1)[0],
+      klines,
+    };
+
+    if (!this.chart) {
+      return;
+    }
+    const dimensions = this.getDimensions();
+    this.chart.setOption({
+      dimensions,
+      dataset: {
+        source: klines,
+      },
+    } as EChartsOption);
+  }
+
+  protected getValueFormatter(formatter: (v) => string) {
+    return (value, dataIndex: number) => {
+      if (Array.isArray(value)) {
+        return value.map(formatter).join(`<br />\n`);
+      }
+      return formatter(value as number);
+    }
+  }
+
+  protected volBarRenderItem: echarts.CustomSeriesRenderItem = function (params, api) {
+    const ts = api.value('ts') as number;
+    let amount = api.value('amount') as number;
+    // const v2 = api.value(2);
+    const HOUR = 60 * 60 * 1000;
+    let start = api.coord([ts - 8 * HOUR, amount]);
+    let end = api.coord([ts + 8 * HOUR, amount]);
+    const s = api.size([0, amount]);
+    let height = s[1];
+
+    // console.log(params);
+
+    const shape = {
+      x: start[0],
+      y: start[1],
+      width: end[0] - start[0],
+      height: height
+    };
+
+    return {
+      type: 'rect',
+      shape: shape,
+      style: api.style()
+      // style: {
+      //   "fill": "rgba(0,202,60,0.5)",
+      //   "textPosition": "inside",
+      //   "textDistance": 5,
+      //   "fontStyle": "normal",
+      //   "fontWeight": "normal",
+      //   "fontSize": 12,
+      //   "fontFamily": "sans-serif",
+      //   "textFill": "#fff",
+      //   "textStroke": "rgba(0,202,60,0.5)",
+      //   "textStrokeWidth": 2,
+      //   "text": null,
+      //   "legacy": true
+      // }
+    };
+  };
+
+  protected getLegendOptions(): EChartsOption['legend'] {
+    return {
+      top: 10,
+      align: 'auto',
+      // right: 10,
+      // left: 10,
+      data: this.mas.map(m => `MA${m}`).concat('bbUpper', 'bbMa', 'bbLower')
+    }
+  }
+
+  protected buildBaseSeries(): EChartsOption['series'] {
+
+    return [
+      {
+        name: 'Kline',
+        type: 'candlestick',
+        barWidth: '60%',
+        itemStyle: {
+          color: this.upColor,
+          color0: this.downColor,
+          borderColor: undefined,
+          borderColor0: undefined
+        },
+        datasetIndex: 0,
+        encode: {
+          x: 'ts',
+          y: ['open', 'close', 'low', 'high'],
+        },
+      },
+      {
+        name: 'Volume',
+        // type: 'bar',
+        xAxisIndex: 1,
+        yAxisIndex: 1,
+        datasetIndex: 0,
+        encode: {
+          x: 'ts',
+          y: ['amount'],
+          // tooltip: ['amount']
+        },
+        type: 'custom',
+        renderItem: this.volBarRenderItem,
+        tooltip: {
+          valueFormatter: this.getValueFormatter(volumeFormatter)
+        },
+      },]
+  }
+
+  protected buildSeries(): EChartsOption['series'] {
+    return [
+      ...this.buildBaseSeries() as [],
+      ...(this.mas || []).map((m) => ({
+        name: `MA${m}`,
+        type: 'line',
+        datasetIndex: 0,
+        encode: {
+          x: 'ts',
+          y: `ma${m}`,
+        },
+        smooth: true,
+        lineStyle: {
+          opacity: 0.5
+        },
+        tooltip: {
+          show: false
+        }
+      } as EChartsOption['series'])) as [],
+      ...(this.bollingerBandOptions ? ['bbUpper', 'bbMa', 'bbLower'] : []).map((m) => ({
+        name: m,
+        type: 'line',
+        datasetIndex: 0,
+        encode: {
+          x: 'ts',
+          y: m,
+        },
+        smooth: true,
+        lineStyle: {
+          opacity: 0.5
+        },
+        tooltip: {
+          show: false
+        }
+      } as EChartsOption['series'])) as [],
+    ];
+  }
+
+  protected calculateMA(data: ChartKline[], n: number) {
+    let sum = 0;
+    let lastKl0: ChartKline;
+    for (let i = 0; i < data.length; i++) {
+      const kl = data[i];
+      const fromIndex = i - n + 1;
+      sum += kl.p_avg;
+      if (fromIndex < 0) {
+        continue;
+      }
+      if (lastKl0) {
+        sum -= lastKl0.p_avg;
+      }
+      kl[`ma${n}`] = sum / n;
+      lastKl0 = data[fromIndex];
+    }
+  }
+
+  protected evalBBand(
+    klines: ChartKline[],
+    stdTimes = 2,
+  ) {
+    const kl = klines[klines.length - 1];
+    const prices = klines.filter((k) => k.size > 0).map((k) => k.amount / k.size);
+    const ma = _.sum(prices) / prices.length;
+    const sqs = prices.map((p) => Math.pow(p - ma, 2));
+    const std = Math.sqrt(_.sum(sqs) / sqs.length);
+    const kstd = std * stdTimes;
+    kl.bbMa = ma;
+    kl.bbLower = ma - kstd;
+    kl.bbUpper = ma + kstd;
+  }
+
+  protected evalBBands(
+    klines: ChartKline[],
+  ) {
+    const { n, times } = this.bollingerBandOptions;
+    const len = klines.length - 1;
+    for (let i = n - 1; i < len; i++) {
+      const kls = klines.slice(i - n + 1, i);
+      this.evalBBand(kls, times);
+    }
+  }
+
+  protected transformKline(kls: Kline[]) {
+    let ii = 0;
+    const klines: ChartKline[] = kls
+      .map((k: Kline) => {
+        k.ts = new Date(k.time).getTime();
+        if (k.v_bp == null) {
+          k.p_ch = k.close - k.open;
+          k.p_avg = k.size > 0 ? k.amount / k.size : 0;
+          k.p_cp = (k.p_ch / k.open) * 100.0;
+          k.p_ap = (Math.abs(k.high - k.low) / k.low) * 100.0;
+          k.v_bp = k.size > 0 ? (k.bs / k.size) * 100.0 : 0;
+        }
+        const kl = k as ChartKline;
+        kl.i = ii;
+        kl.up = kl.close >= kl.open ? 1 : -1;
+        return kl;
+      });
+
+    if (this.mas) {
+      for (const ma of this.mas) {
+        this.calculateMA(klines, ma);
+      }
+    }
+
+    if (this.bollingerBandOptions) {
+      this.evalBBands(klines);
+    }
+
+    return klines;
   }
 }
