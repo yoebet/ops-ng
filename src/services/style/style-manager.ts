@@ -2,10 +2,10 @@
  * Copied from https://github.com/angular/material.angular.io/blob/master/src/app/shared/style-manager/style-manager.ts
  */
 
-import {Injectable} from '@angular/core';
+import { Injectable } from '@angular/core';
 
-@Injectable()
-export class StyleManagerService {
+@Injectable({ providedIn: 'root' })
+export class StyleManager {
   constructor() {
   }
 

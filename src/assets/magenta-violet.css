@@ -1,0 +1,10 @@
+@import "styles/magenta-violet.css";
+@import "dark.css";
+
+.primary-color {
+  color: #ffabf3 !important;
+}
+
+.accent-color {
+  color: #dabfd2 !important;
+}

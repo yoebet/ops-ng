@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { provideHttpClient } from '@angular/common/http';
-import { StyleManagerService } from '@/services/style/style-manager.service';
+import { StyleManager } from '@/services/style/style-manager';
 import { NotificationService } from '@/services/sys/notification.service';
 import { SessionService } from '@/services/sys/session.service';
 import { UserService } from '@/services/sys/user.service';
@@ -12,7 +12,7 @@ import { ThemeService } from '@/services/style/theme.service';
   providers: [
     provideHttpClient(),
     ThemeService,
-    StyleManagerService,
+    StyleManager,
     NotificationService,
     SessionService,
     UserService,

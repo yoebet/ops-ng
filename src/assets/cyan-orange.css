@@ -1,0 +1,14 @@
+@import "styles/cyan-orange.css";
+@import "dark.css";
+
+.primary-color {
+  color: #00dddd !important;
+}
+
+.accent-color {
+  color: #b0cccb !important;
+}
+
+.active-link {
+  color: #ffb787 !important;
+}

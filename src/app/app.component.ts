@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { ThemeService } from '@/services/style/theme.service';
 
 @Component({
   selector: 'app-root',
@@ -7,10 +8,10 @@ import { Component, OnInit } from '@angular/core';
   styleUrl: './app.component.css'
 })
 export class AppComponent implements OnInit {
-
-  title = 'ops-ng';
-
+  constructor(private themeService: ThemeService) {
+  }
 
   async ngOnInit() {
+    this.themeService.setDefaultTheme();
   }
 }

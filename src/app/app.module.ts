@@ -18,6 +18,7 @@ import { UserEditComponent } from '@/app/sys/user/user-edit.component';
 import { UserPwdResetComponent } from '@/app/sys/user/user-pwd-reset.component';
 import { UsersComponent } from '@/app/sys/user/users.component';
 import { ThemeSwitchComponent } from '@/app/home/theme-switch.component';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
 
 @NgModule({
@@ -39,6 +40,9 @@ import { ThemeSwitchComponent } from '@/app/home/theme-switch.component';
     KlineChartComponent,
   ],
   bootstrap: [AppComponent],
+  providers: [
+    provideAnimationsAsync()
+  ],
 })
 export class AppModule {
 }
