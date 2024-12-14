@@ -1,11 +1,9 @@
 import { AfterViewInit, Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
 import * as echarts from 'echarts';
 import { ECharts } from 'echarts';
-import rawData from './k1d.json'
 import { ES, Kline } from '../../models/kline';
-import { priceFormatter, volumeFormatter } from '../../common/utils';
+import { formatDate, volumeFormatter } from '../../common/utils';
 import { TimeLevel } from '../../models/time-level';
-import * as _ from 'lodash';
 
 type EChartsOption = echarts.EChartsOption;
 
@@ -25,6 +23,17 @@ export interface ChartKline extends Kline {
   bbLower?: number;
   buyOrder?: KlineOrders;
   sellOrder?: KlineOrders;
+  dateStr?: string;
+  dateStrLocal?: string;
+  size_s?: string;
+  amount_s?: string;
+  p_cp_s?: string;
+  p_ap_s?: string;
+  v_bp_s?: string;
+  open_s?: string;
+  high_s?: string;
+  low_s?: string;
+  close_s?: string;
 }
 
 @Component({
@@ -53,15 +62,17 @@ export abstract class KlineChartBaseComponent implements OnInit, AfterViewInit {
   ];
   protected chartData: {
     es: ES;
+    priceDigits?: number;
     timeLevel: TimeLevel;
     klines?: ChartKline[];
     currentKline?: ChartKline;
   }
   protected upColor = 'rgb(51,189,101)';
   protected downColor = 'rgb(235,75,109)';
-  // protected downColor = 'rgba(204,0,28,0.7)';
   protected volUpColor = 'rgba(0,202,60,0.5)';
   protected volDownColor = 'rgba(204,0,28,0.5)';
+  protected buyMarkerColor = 'rgba(41,200,85,1)';
+  protected sellMarkerColor = 'rgba(200,60,85,1)';
 
   async ngOnInit() {
   }
@@ -104,7 +115,7 @@ export abstract class KlineChartBaseComponent implements OnInit, AfterViewInit {
       animation: false,
       title: {
         top: 10,
-        text: `Candlestick`,
+        text: ``,
         subtext: ``
       },
       dataset: {
@@ -129,8 +140,6 @@ export abstract class KlineChartBaseComponent implements OnInit, AfterViewInit {
           }
           const ps = params as {
             seriesType: string,
-            seriesName: string,
-            seriesIndex: number,
             value: ChartKline
           }[];
           // console.log(params);
@@ -148,6 +157,33 @@ export abstract class KlineChartBaseComponent implements OnInit, AfterViewInit {
             xAxisIndex: 'all'
           }
         ],
+        label: {
+          // show: true,
+          // backgroundColor: '#777',
+          formatter: (params) => {
+            const { seriesData, axisDimension, axisIndex, value } = params;
+            // console.log(params);
+            if (axisDimension === 'y') {
+              if (axisIndex === 1) { // Volume
+                return volumeFormatter(value as number);
+              }
+              if (typeof value === 'number') {
+                const priceDigits = this.chartData?.priceDigits || 2
+                return value.toPrecision(priceDigits);
+              }
+              return undefined;
+            }
+            // value: ts
+            const kl = seriesData[0]?.data as ChartKline;
+            if (!kl) {
+              return undefined;
+            }
+            if (!kl.dateStrLocal) {
+              kl.dateStrLocal = formatDate(kl.ts, this.chartData?.timeLevel?.interval, false);
+            }
+            return kl.dateStrLocal;
+          }
+        }
       },
       toolbox: {
         feature: {
@@ -312,24 +348,44 @@ export abstract class KlineChartBaseComponent implements OnInit, AfterViewInit {
   }
 
   updateTitle() {
-    const { es, timeLevel, currentKline: kl } = this.chartData || {};
+    const { es, timeLevel, currentKline: kl, priceDigits = 2 } = this.chartData || {};
     const title = es && timeLevel ? `${es.ex} ${es.symbol} ${timeLevel.interval}` : '';
     let info: string;
     if (kl) {
+      if (!kl.dateStr) {
+        kl.dateStr = formatDate(kl.ts, timeLevel.interval, true);
+        kl.size_s = volumeFormatter(kl.size);
+        kl.amount_s = volumeFormatter(kl.amount);
+        kl.open_s = `${kl.open.toFixed(priceDigits)}%`;
+        kl.high_s = `${kl.high.toFixed(priceDigits)}%`;
+        kl.low_s = `${kl.low.toFixed(priceDigits)}%`;
+        kl.close_s = `${kl.close.toFixed(priceDigits)}%`;
+        kl.p_cp_s = `${kl.p_cp.toFixed(2)}%`;
+        if (kl.p_cp >= 0) {
+          kl.p_cp_s = `+${kl.p_cp_s}`;
+        }
+        kl.p_ap_s = `${kl.p_ap.toFixed(2)}%`;
+        kl.v_bp_s = `${kl.v_bp.toFixed(2)}%`;
+      }
       const vs = [
-        ['O', kl.open], ['C', kl.close], ['H', kl.high], ['L', kl.low],
-        ['CH', `${kl.p_cp.toFixed(2)}%`],
-        ['AP', `${kl.p_ap.toFixed(2)}%`],
-        ['Buy', `${kl.v_bp.toFixed(2)}%`]
+        ['O', kl.open_s], ['C', kl.close_s], ['H', kl.high_s], ['L', kl.low_s],
+        ['CH', kl.p_cp_s], ['AP', kl.p_ap_s],
+        ['Size', kl.size_s], ['Amount', kl.amount_s], ['Buy', kl.v_bp_s],
       ].map(nv => nv.join(' ')).join('  ');
-      info = `${new Date(kl.ts).toISOString()} ${vs}`;
+      info = `${kl.dateStr} ${vs}`;
     }
     this.chart.setOption({
       title: {
         text: title,
-        subtext: info
+        textStyle: {
+          fontFamily: 'monospace',
+        },
+        subtext: info,
+        subtextStyle: {
+          fontFamily: 'monospace',
+        }
       }
-    });
+    } as EChartsOption);
   }
 
   updateChartData() {
@@ -355,19 +411,6 @@ export abstract class KlineChartBaseComponent implements OnInit, AfterViewInit {
         {
           name: 'Kline',
           type: 'candlestick',
-          // barWidth: '60%',
-          // itemStyle: {
-          //   color: this.upColor,
-          //   color0: this.downColor,
-          //   borderColor: undefined,
-          //   borderColor0: undefined
-          // },
-          // datasetIndex: 0,
-          // encode: {
-          //   x: 'ts',
-          //   y: ['open', 'close', 'low', 'high'],
-          //   // tooltip: ['open', 'close', 'low', 'high'],
-          // },
           markPoint: {
             name: 'NN',
             // 'circle', 'rect', 'roundRect', 'triangle', 'diamond', 'pin', 'arrow', 'none'
@@ -427,7 +470,7 @@ export abstract class KlineChartBaseComponent implements OnInit, AfterViewInit {
                   // valueDim: 'low',
                   value: k,
                   itemStyle: {
-                    color: 'rgb(41,200,85)',
+                    color: this.buyMarkerColor,
                     opacity: 0.9,
                   },
                   label: {
@@ -447,7 +490,7 @@ export abstract class KlineChartBaseComponent implements OnInit, AfterViewInit {
                   // valueDim: 'high',
                   value: k,
                   itemStyle: {
-                    color: 'rgb(200,60,85)',
+                    color: this.sellMarkerColor,
                     opacity: 0.9,
                   },
                   label: {
@@ -520,7 +563,6 @@ export abstract class KlineChartBaseComponent implements OnInit, AfterViewInit {
       // left: 10,
       data: this.mas.map(m => `MA${m}`)
         .concat(this.bollingerBandNames.map(b => b.name))
-        .concat('MM')
     }
   }
 

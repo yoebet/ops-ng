@@ -22,6 +22,7 @@
     "@angular/router": "^19.0.0",
     "echarts": "^5.5.1",
     "lodash": "^4.17.21",
+    "luxon": "^3.5.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.15.0"
@@ -32,6 +33,7 @@
     "@angular/compiler-cli": "^19.0.0",
     "@types/jasmine": "~5.1.0",
     "@types/lodash": "^4.17.13",
+    "@types/luxon": "^3.4.2",
     "autoprefixer": "^10.4.20",
     "jasmine-core": "~5.4.0",
     "karma": "~6.4.0",

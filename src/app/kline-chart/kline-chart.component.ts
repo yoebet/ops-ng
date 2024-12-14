@@ -25,6 +25,7 @@ export class KlineChartComponent extends KlineChartBaseComponent {
     const klines = this.transformKline(rawData as any[] as Kline[]);
     this.chartData = {
       es: { ex: 'binance', symbol: 'ETH/USDT' },
+      // priceDigits: 2,
       timeLevel: TimeLevel.TL1mTo1d.slice(-1)[0],
       klines,
     };

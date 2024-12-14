@@ -1,5 +1,3 @@
-import { TimeLevel } from './time-level';
-
 export interface Kline {
   ts: number;
   time?: string;
