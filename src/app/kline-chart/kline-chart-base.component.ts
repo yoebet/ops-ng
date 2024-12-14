@@ -348,24 +348,28 @@ export abstract class KlineChartBaseComponent implements OnInit, AfterViewInit {
   }
 
   updateTitle() {
-    const { es, timeLevel, currentKline: kl, priceDigits = 2 } = this.chartData || {};
+    const { es, timeLevel, currentKline: kl, priceDigits } = this.chartData || {};
     const title = es && timeLevel ? `${es.ex} ${es.symbol} ${timeLevel.interval}` : '';
     let info: string;
     if (kl) {
       if (!kl.dateStr) {
+        const pf = (priceDigits != null) ?
+          (p: number) => p.toFixed(priceDigits) :
+          (p: number) => p.toPrecision(6);
+        const pp = (p) => `${p.toFixed(2)}%`;
         kl.dateStr = formatDate(kl.ts, timeLevel.interval, true);
         kl.size_s = volumeFormatter(kl.size);
         kl.amount_s = volumeFormatter(kl.amount);
-        kl.open_s = `${kl.open.toFixed(priceDigits)}%`;
-        kl.high_s = `${kl.high.toFixed(priceDigits)}%`;
-        kl.low_s = `${kl.low.toFixed(priceDigits)}%`;
-        kl.close_s = `${kl.close.toFixed(priceDigits)}%`;
-        kl.p_cp_s = `${kl.p_cp.toFixed(2)}%`;
+        kl.open_s = pf(kl.open);
+        kl.high_s = pf(kl.high);
+        kl.low_s = pf(kl.low);
+        kl.close_s = pf(kl.close);
+        kl.p_cp_s = pp(kl.p_cp);
         if (kl.p_cp >= 0) {
           kl.p_cp_s = `+${kl.p_cp_s}`;
         }
-        kl.p_ap_s = `${kl.p_ap.toFixed(2)}%`;
-        kl.v_bp_s = `${kl.v_bp.toFixed(2)}%`;
+        kl.p_ap_s = pp(kl.p_ap);
+        kl.v_bp_s = pp(kl.v_bp);
       }
       const vs = [
         ['O', kl.open_s], ['C', kl.close_s], ['H', kl.high_s], ['L', kl.low_s],
