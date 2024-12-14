@@ -1,9 +1,4 @@
-@import "../styles/material-icons/material-icons.css";
-
-/*@tailwind base;*/
-/*@tailwind components;*/
-/*@tailwind utilities;*/
-
+@import "assets/material-icons/material-icons.css";
 
 html, body {
   height: 100%;
