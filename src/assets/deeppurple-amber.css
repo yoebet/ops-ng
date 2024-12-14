@@ -1,5 +1,5 @@
-@import "./styles/deeppurple-amber.css";
-@import "./light.css";
+@import "styles/deeppurple-amber.css";
+@import "light.css";
 
 .primary-color {
   color: #673ab7 !important;

@@ -1,5 +1,5 @@
-@import "./styles/pink-bluegrey.css";
-@import "./dark.css";
+@import "styles/pink-bluegrey.css";
+@import "dark.css";
 
 .primary-color {
   color: #607d8b !important;

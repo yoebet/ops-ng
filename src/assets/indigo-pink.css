@@ -1,5 +1,5 @@
-@import "./styles/indigo-pink.css";
-@import "./light.css";
+@import "styles/indigo-pink.css";
+@import "light.css";
 
 .primary-color {
   color: #3f51b5 !important;

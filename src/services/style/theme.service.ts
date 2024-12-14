@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Subject } from 'rxjs';
 
 import { StyleManagerService } from './style-manager.service';
@@ -57,7 +56,6 @@ export class ThemeService {
   defaultTheme: Theme = this.options[0];
 
   constructor(
-    private http: HttpClient,
     private styleManager: StyleManagerService
   ) {
   }

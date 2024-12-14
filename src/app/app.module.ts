@@ -7,8 +7,17 @@ import { LayoutModule } from '@angular/cdk/layout';
 import { AppMaterialModule } from './app-material.module';
 import { AppComponent } from './app.component';
 import { MessageDialogComponent } from './common/message-dialog/message-dialog.component';
-import { ServiceModule } from '../services/service.module';
+import { ServiceModule } from '@/services/service.module';
 import { KlineChartComponent } from './kline-chart/kline-chart.component';
+import { RouterModule, RouterOutlet } from '@angular/router';
+import { ChangePwdComponent } from '@/app/sys/account/change-pwd.component';
+import { LoginDialogComponent } from '@/app/sys/account/login-dialog.component';
+import { HomeComponent } from '@/app/home/home.component';
+import { UserDetailComponent } from '@/app/sys/user/user-detail.component';
+import { UserEditComponent } from '@/app/sys/user/user-edit.component';
+import { UserPwdResetComponent } from '@/app/sys/user/user-pwd-reset.component';
+import { UsersComponent } from '@/app/sys/user/users.component';
+import { ThemeSwitchComponent } from '@/app/home/theme-switch.component';
 
 
 @NgModule({
@@ -19,10 +28,16 @@ import { KlineChartComponent } from './kline-chart/kline-chart.component';
     BrowserAnimationsModule,
     LayoutModule,
     AppMaterialModule,
-    // AppRoutingModule,
-    ServiceModule
+    ServiceModule,
+    RouterModule,
+    RouterOutlet
   ],
-  declarations: [AppComponent, MessageDialogComponent, KlineChartComponent],
+  declarations: [
+    AppComponent, MessageDialogComponent,
+    ChangePwdComponent, LoginDialogComponent, HomeComponent, ThemeSwitchComponent,
+    UserDetailComponent, UserEditComponent, UserPwdResetComponent, UsersComponent,
+    KlineChartComponent,
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule {

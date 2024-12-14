@@ -1,5 +1,5 @@
-@import "./styles/purple-green.css";
-@import "./dark.css";
+@import "styles/purple-green.css";
+@import "dark.css";
 
 .primary-color {
   color: #9c27b0 !important;

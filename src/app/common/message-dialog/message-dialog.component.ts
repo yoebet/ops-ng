@@ -3,8 +3,8 @@ import { MatDialogRef, MAT_DIALOG_DATA, MatDialog, MatDialogContent } from '@ang
 import { MatIcon } from '@angular/material/icon';
 
 @Component({
-  selector: 'app-message-dialog',
   standalone: false,
+  selector: 'app-message-dialog',
   templateUrl: './message-dialog.component.html',
   styleUrls: ['./message-dialog.component.css']
 })

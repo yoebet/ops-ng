@@ -79,6 +79,7 @@ export abstract class KlineChartBaseComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit() {
     this.resetChart();
+    this.windowWidth = window.innerWidth;
   }
 
   getDimensions(): string[] {

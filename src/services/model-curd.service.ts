@@ -2,8 +2,8 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { MatDialog } from '@angular/material/dialog';
-import { Model } from '../models/model';
-import { ApiResult, ValueResult } from '../models/api-result';
+import { Model } from '@/models/model';
+import { ApiResult, ValueResult } from '@/models/api-result';
 import { BaseService } from './base.service';
 
 export class ModelCurdService<M extends Model> extends BaseService<M> {

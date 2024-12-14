@@ -1,25 +1,24 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { EMPTY, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 import { catchError, filter, map } from 'rxjs/operators';
 import { MatDialog } from '@angular/material/dialog';
+import { environment } from '@/environments/environment';
+import { MessageDialogComponent } from '@/app/common/message-dialog/message-dialog.component';
+import { CountList, CountListResult, ListResult, ApiResult, ResultCodes, ValueResult } from '@/models/api-result';
+import { LoginSupport } from '@/services/login-support';
 
-import { environment } from '../environments/environment';
-import { MessageDialogComponent } from '../app/common/message-dialog/message-dialog.component';
-import { CountList, CountListResult, ListResult, ApiResult, ResultCodes, ValueResult } from '../models/api-result';
-
-export class BaseService<M> {
+export class BaseService<M> extends LoginSupport {
 
   protected baseUrl = '';
 
   constructor(protected http: HttpClient,
-              protected dialog: MatDialog) {
-    // super(dialog);
+              protected override dialog: MatDialog) {
+    super(dialog);
   }
 
   get apiBase(): string {
     return environment.apiBase;
   }
-
 
   /*  listForType<T>(url: string = null, params?: any): Observable<ListResult<T>> {
       url = url || this.baseUrl;
