@@ -1,9 +1,11 @@
 import { Component } from '@angular/core';
 import rawData from './k1d.json'
-import { Kline } from '../../models/kline';
-import { TimeLevel } from '../../models/time-level';
+import { Kline } from '@/models/kline';
+import { TimeLevel } from '@/models/time-level';
 import * as _ from 'lodash';
 import { ChartKline, KlineChartBaseComponent } from './kline-chart-base.component';
+import { ThemeService } from '@/services/style/theme.service';
+import { SessionService } from '@/services/sys/session.service';
 
 
 @Component({
@@ -15,7 +17,13 @@ import { ChartKline, KlineChartBaseComponent } from './kline-chart-base.componen
 export class KlineChartComponent extends KlineChartBaseComponent {
   protected override mas = [10];
 
+  constructor(protected override themeService: ThemeService,
+              protected override sessionService: SessionService) {
+    super(themeService, sessionService);
+  }
+
   override async ngOnInit() {
+    await super.ngOnInit();
     setTimeout(() => {
       this.updateData();
     }, 1000);

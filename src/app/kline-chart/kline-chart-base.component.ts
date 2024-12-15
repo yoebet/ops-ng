@@ -1,9 +1,12 @@
-import { AfterViewInit, Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import * as echarts from 'echarts';
 import { ECharts } from 'echarts';
-import { ES, Kline } from '../../models/kline';
-import { formatDate, volumeFormatter } from '../../common/utils';
-import { TimeLevel } from '../../models/time-level';
+import { formatDate, volumeFormatter } from '@/common/utils';
+import { ES, Kline } from '@/models/kline';
+import { TimeLevel } from '@/models/time-level';
+import { SessionService } from '@/services/sys/session.service';
+import { Subscription } from 'rxjs';
+import { ThemeService } from '@/services/style/theme.service';
 
 type EChartsOption = echarts.EChartsOption;
 
@@ -11,6 +14,8 @@ export interface KlineOrders {
   side: 'buy' | 'sell';
   count: number;
   avgPrice: number;
+  size: number;
+  amount: number;
 }
 
 export interface ChartKline extends Kline {
@@ -39,15 +44,19 @@ export interface ChartKline extends Kline {
 @Component({
   template: '',
 })
-export abstract class KlineChartBaseComponent implements OnInit, AfterViewInit {
+export abstract class KlineChartBaseComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('chart') chartDiv!: ElementRef;
   protected chart!: ECharts;
 
   protected chartWidth = '100%';
   protected chartHeight = 600;
+  protected chartDarkTheme: boolean;
 
+  protected themeSubscription: Subscription;
+  protected navDrawerSubscription: Subscription;
   protected windowWidth: number;
   protected resetChartHandler: ReturnType<typeof setTimeout>;
+
   protected mas = [/*10, 20*/];
   protected bollingerBandOptions = { n: 20, times: 2 };
   protected bollingerBandNames: { name: string, field: string }[] = [
@@ -67,6 +76,10 @@ export abstract class KlineChartBaseComponent implements OnInit, AfterViewInit {
     klines?: ChartKline[];
     currentKline?: ChartKline;
   }
+
+  protected transparentBackground = true;
+  protected lightBackgroundColor = '#FAFAFA'; // #FAFAFA, white
+  protected darkBackgroundColor = '#333'; // #404040, #333, black
   protected upColor = 'rgb(51,189,101)';
   protected downColor = 'rgb(235,75,109)';
   protected volUpColor = 'rgba(0,202,60,0.5)';
@@ -74,7 +87,23 @@ export abstract class KlineChartBaseComponent implements OnInit, AfterViewInit {
   protected buyMarkerColor = 'rgba(41,200,85,1)';
   protected sellMarkerColor = 'rgba(200,60,85,1)';
 
+  constructor(protected themeService: ThemeService,
+              protected sessionService: SessionService) {
+  }
+
   async ngOnInit() {
+    this.chartDarkTheme = this.themeService.currentTheme.darkTheme;
+    this.themeSubscription = this.themeService.themeSubject
+      .subscribe(theme => {
+        if (theme.darkTheme !== this.chartDarkTheme) {
+          this.chartDarkTheme = theme.darkTheme;
+          this.resetChart(true);
+        }
+      });
+    this.navDrawerSubscription = this.sessionService.navDrawerSubject
+      .subscribe(open => {
+        this.resetChart();
+      });
   }
 
   ngAfterViewInit() {
@@ -112,8 +141,12 @@ export abstract class KlineChartBaseComponent implements OnInit, AfterViewInit {
     const chartData = this.chartData;
     const series = this.buildSeries();
     const legend = this.getLegendOptions();
+    const backgroundColor = this.transparentBackground ?
+      'transparent' :
+      (this.chartDarkTheme ? this.darkBackgroundColor : this.lightBackgroundColor);
     const option: EChartsOption = {
       animation: false,
+      backgroundColor,
       title: {
         top: 10,
         text: ``,
@@ -333,6 +366,11 @@ export abstract class KlineChartBaseComponent implements OnInit, AfterViewInit {
     chart.on('globalout', clearCurrentKline);
   }
 
+  rebuildChart(): void {
+    const option = this.buildChartOption();
+    this.chart.setOption(option, true);
+  }
+
   resetChart(rebuildOption = false): void {
     let opt: EChartsOption;
     if (this.chart) {
@@ -340,7 +378,7 @@ export abstract class KlineChartBaseComponent implements OnInit, AfterViewInit {
       this.chart.dispose();
     }
     const holder = this.chartDiv!.nativeElement as HTMLDivElement;
-    this.chart = echarts.init(holder, null, {
+    this.chart = echarts.init(holder, this.chartDarkTheme ? 'dark' : null, {
       // renderer: 'svg',
       // locale: 'ZH'
     });
@@ -649,5 +687,14 @@ export abstract class KlineChartBaseComponent implements OnInit, AfterViewInit {
         }
       } as EChartsOption['series'])) as [],
     ];
+  }
+
+  ngOnDestroy() {
+    if (this.themeSubscription) {
+      this.themeSubscription.unsubscribe();
+    }
+    if (this.navDrawerSubscription) {
+      this.navDrawerSubscription.unsubscribe();
+    }
   }
 }
