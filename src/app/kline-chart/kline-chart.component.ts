@@ -30,6 +30,7 @@ export class KlineChartComponent extends KlineChartBaseComponent {
   }
 
   updateData() {
+    (rawData as any[]).forEach(k => k.ts = new Date(k.time).getTime());
     const klines = this.transformKline(rawData as any[] as Kline[]);
     this.chartData = {
       es: { ex: 'binance', symbol: 'ETH/USDT' },
@@ -89,7 +90,6 @@ export class KlineChartComponent extends KlineChartBaseComponent {
     let ii = 0;
     const klines: ChartKline[] = kls
       .map((k: Kline) => {
-        k.ts = new Date(k.time).getTime();
         if (k.v_bp == null) {
           k.p_ch = k.close - k.open;
           k.p_avg = k.size > 0 ? k.amount / k.size : 0;

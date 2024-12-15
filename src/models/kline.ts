@@ -1,6 +1,6 @@
 export interface Kline {
   ts: number;
-  time?: string;
+  // time?: string;
   // time?: Date;
   size: number;
   amount: number;
@@ -22,4 +22,9 @@ export interface Kline {
 export interface ES {
   ex: string;
   symbol: string;
+}
+
+export enum TradeSide {
+  'buy' = 'buy',
+  'sell' = 'sell',
 }

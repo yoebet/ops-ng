@@ -2,11 +2,11 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { MatDialog } from '@angular/material/dialog';
-import { Model } from '@/models/model';
+import { BaseModel } from '@/models/base-model';
 import { ApiResult, ValueResult } from '@/models/api-result';
 import { BaseService } from './base.service';
 
-export class ModelCurdService<M extends Model> extends BaseService<M> {
+export class ModelCurdService<M extends BaseModel> extends BaseService<M> {
 
   constructor(protected override http: HttpClient,
               protected override dialog: MatDialog) {

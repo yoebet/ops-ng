@@ -1,6 +1,6 @@
-import { Model } from '../model';
+import { BaseModel } from '../base-model';
 
-export class User extends Model {
+export class User extends BaseModel {
   username: string;
   role?: string;
   email?: string;
