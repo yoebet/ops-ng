@@ -19,6 +19,7 @@ import { UserPwdResetComponent } from '@/app/sys/user/user-pwd-reset.component';
 import { UsersComponent } from '@/app/sys/user/users.component';
 import { ThemeSwitchComponent } from '@/app/home/theme-switch.component';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { routes } from '@/app/app.routes';
 
 
 @NgModule({
@@ -30,8 +31,11 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
     LayoutModule,
     AppMaterialModule,
     ServiceModule,
-    RouterModule,
-    RouterOutlet
+    RouterOutlet,
+    RouterModule.forRoot(routes, {
+      // enableTracing: true,
+      // useHash: true
+    })
   ],
   declarations: [
     AppComponent, MessageDialogComponent,

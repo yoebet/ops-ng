@@ -1,24 +1,27 @@
-<h3 mat-dialog-title>登录</h3>
+<mat-dialog-content class="mat-typography">
 
-<div class="warn-color login-error-message" *ngIf="message">{{ message }}</div>
+  <h3 mat-dialog-title>登录</h3>
 
-<div class="login-form">
-  <mat-form-field appearance="outline">
-    <mat-label>账号</mat-label>
-    <input matInput value="wsx" #name>
-  </mat-form-field>
+  <div class="warn-color login-error-message mb-4" *ngIf="message">{{ message }}</div>
 
-  <mat-form-field appearance="outline">
-    <mat-label>密码</mat-label>
-    <input matInput [type]="hidePassword ? 'password' : 'text'" value="123"
-           (keyup)="onPassKeyup(name.value, password.value, $event)" #password>
-    <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword">
-      <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
-    </button>
-  </mat-form-field>
-</div>
+  <div class="login-form">
+    <mat-form-field appearance="outline">
+      <mat-label>账号</mat-label>
+      <input matInput value="wsx" #name>
+    </mat-form-field>
 
-<div mat-dialog-actions align="end">
-  <button mat-button (click)="cancel()">取消</button>
-  <button mat-button color="primary" (click)="login(name.value, password.value)" cdkFocusInitial>登录</button>
-</div>
+    <mat-form-field appearance="outline">
+      <mat-label>密码</mat-label>
+      <input matInput [type]="hidePassword ? 'password' : 'text'" value="123"
+             (keyup)="onPassKeyup(name.value, password.value, $event)" #password>
+      <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword">
+        <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+      </button>
+    </mat-form-field>
+  </div>
+
+  <div mat-dialog-actions align="end">
+    <button mat-button (click)="cancel()">取消</button>
+    <button mat-button color="primary" (click)="login(name.value, password.value)" cdkFocusInitial>登录</button>
+  </div>
+</mat-dialog-content>

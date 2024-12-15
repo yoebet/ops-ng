@@ -170,7 +170,7 @@ export class HomeComponent extends SessionSupportComponent implements OnDestroy 
   override withSession(user: User) {
     this.beenLogin = true;
     if (this.notificationsOn && !this.eventSource) {
-      this.setupEventSource();
+      // this.setupEventSource();
     }
   }
 

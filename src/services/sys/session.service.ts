@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import * as Rx from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { environment } from '@/environments/environment';
@@ -12,7 +13,7 @@ import { LocalStorageKeys } from '@/constants';
 @Injectable()
 export class SessionService {
 
-  private baseUrl: string;
+  private readonly baseUrl: string;
 
   currentUser: User;
 
@@ -25,7 +26,7 @@ export class SessionService {
     this.baseUrl = `${environment.apiBase}/session`;
   }
 
-  login(username, password): Observable<ValueResult<User>> {
+  login(username: string, password: string): Observable<ValueResult<User>> {
     return this.http.post<ValueResult<LoginInfo>>(this.baseUrl,
       { username, password })
       .pipe(
@@ -33,7 +34,6 @@ export class SessionService {
           const li: LoginInfo = result.value;
           if (result && result.code === ResultCodes.CODE_SUCCESS) {
             const accessToken = li.accessToken;
-
             localStorage.setItem(LocalStorageKeys.AccessToken, accessToken);
             this.processLogin(li.user);
           }
@@ -51,7 +51,6 @@ export class SessionService {
   }
 
   checkLogin(): Observable<ValueResult<User>> {
-
     const accessToken = localStorage.getItem(LocalStorageKeys.AccessToken);
     const helper = new JwtHelperService();
     const isExpired = helper.isTokenExpired(accessToken);
@@ -64,7 +63,7 @@ export class SessionService {
 
       if (user.id && user.username) {
         this.processLogin(user);
-        return of({
+        return Rx.of({
           code: 0,
           value: user
         });
@@ -83,7 +82,7 @@ export class SessionService {
           const fail: ValueResult<User> = {
             code: err.status || -1
           };
-          return of(fail);
+          return Rx.of(fail);
         })
       );
   }
@@ -105,7 +104,7 @@ export class SessionService {
     localStorage.removeItem(LocalStorageKeys.AccessToken);
     this.currentUser = null;
     this.currentUserSubject.next(null);
-    return of({ code: 0 });
+    return Rx.of({ code: 0 });
     /*return this.http.delete(this.baseUrl)
       .pipe(
         map((opr: Result) => {

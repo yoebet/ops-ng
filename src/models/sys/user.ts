@@ -14,5 +14,5 @@ export class LoginInfo {
 export interface JwtPayload {
   username: string;
   userId: number;
-  role: string;
+  role?: string;
 }

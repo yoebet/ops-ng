@@ -62,7 +62,7 @@ export class UsersComponent extends SessionSupportComponent implements AfterView
 
     const isNewRecord = !user.id;
     dialogRef.afterClosed().subscribe((user1: User) => {
-      console.log(user1);
+      // console.log(user1);
       if (!user1) {
         return;
       }
