@@ -1,6 +1,6 @@
 import { ExSymbolBase } from '@/models/strategy/ex-symbol-base';
 import { ExTradeType } from '@/models/ex/exchange-types';
-import { ConsiderSide, OppCheckerAlgo, StrategyAlgo } from '@/models/strategy/strategy.types';
+import { ConsiderSide, OppCheckerAlgo, StrategyAlgo } from '@/models/strategy.types';
 
 export class Strategy extends ExSymbolBase {
   algoCode: StrategyAlgo;

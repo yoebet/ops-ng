@@ -1,5 +1,5 @@
 import { BaseModel } from '@/models/base-model';
-import { ConsiderSide, OppCheckerAlgo, StrategyAlgo } from '@/models/strategy/strategy.types';
+import { ConsiderSide, OppCheckerAlgo, StrategyAlgo } from '@/models/strategy.types';
 import { ExTradeType } from '@/models/ex/exchange-types';
 
 export class StrategyTemplate extends BaseModel {

@@ -25,6 +25,12 @@ export class BaseService<M> extends LoginSupport {
       return this.pipeDefault(this.http.get<ListResult<T>>(url, {params}));
     }*/
 
+
+  list0<N>(url: string = null, params?: any): Observable<ListResult<N>> {
+    url = url || this.baseUrl;
+    return this.pipeDefault(this.http.get<ListResult<N>>(url, { params }));
+  }
+
   list(url: string = null, params?: any): Observable<ListResult<M>> {
     url = url || this.baseUrl;
     return this.pipeDefault(this.http.get<ListResult<M>>(url, { params }));
@@ -100,7 +106,8 @@ export class BaseService<M> extends LoginSupport {
   protected pipeDefault(obs: Observable<ApiResult>) {
     return obs.pipe(
       filter(this.filterCommonFailure),
-      catchError(this.handleError));
+      catchError((err: any) => this._handleError(err))
+    )
   }
 
   protected unwrapValueResult = (result: ValueResult<M>) => this._unwrapValueResult(result);
@@ -132,8 +139,6 @@ export class BaseService<M> extends LoginSupport {
     }
     return result.countList;
   }
-
-  protected handleError = (err: any) => this._handleError(err);
 
   protected filterCommonFailure = (result: ApiResult) => this._filterCommonFailure(result);
 

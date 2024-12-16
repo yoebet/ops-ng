@@ -8,6 +8,8 @@ import { UserProfileService } from '@/services/sys/user-profile.service';
 import { ThemeService } from '@/services/style/theme.service';
 import { JwtModule } from '@auth0/angular-jwt';
 import { AUTHORIZATION_HEADER, LocalStorageKeys } from '@/constants';
+import { StrategyService } from '@/services/strategy/strategy.service';
+import { StrategyTemplateService } from '@/services/strategy/strategy-template.service';
 
 @NgModule({
   imports: [
@@ -28,6 +30,8 @@ import { AUTHORIZATION_HEADER, LocalStorageKeys } from '@/constants';
     SessionService,
     UserService,
     UserProfileService,
+    StrategyService,
+    StrategyTemplateService,
   ]
 })
 export class ServiceModule {

@@ -1,8 +1,8 @@
 import { OrderStatus, OrderTag } from '@/models/orders';
 import { TradeSide } from '@/models/base';
+import { BaseModel } from '@/models/base-model';
 
-
-export class StrategyOrder {
+export class StrategyOrder extends BaseModel {
 
   dealId?: number;
 
