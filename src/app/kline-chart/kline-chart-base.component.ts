@@ -2,11 +2,12 @@ import { AfterViewInit, Component, ElementRef, HostListener, OnDestroy, OnInit, 
 import * as echarts from 'echarts';
 import { ECharts } from 'echarts';
 import { formatDate, volumeFormatter } from '@/common/utils';
-import { ES, Kline } from '@/models/kline';
+import { Kline } from '@/models/kline';
 import { TimeLevel } from '@/models/time-level';
 import { SessionService } from '@/services/sys/session.service';
 import { Subscription } from 'rxjs';
 import { ThemeService } from '@/services/style/theme.service';
+import { ES } from '@/models/base';
 
 type EChartsOption = echarts.EChartsOption;
 

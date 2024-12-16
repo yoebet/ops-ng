@@ -1,4 +1,4 @@
-import { TradeSide } from '@/models/kline';
+import { TradeSide } from '@/models/base';
 
 export enum StrategyAlgo {
   INT = 'INT',

@@ -6,7 +6,7 @@ export class BacktestStrategy extends Strategy {
 
   dataTo: string;
 
-  startedAt?: Date;
+  startedAt?: string;
 
-  completedAt?: Date;
+  completedAt?: string;
 }

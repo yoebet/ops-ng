@@ -1,23 +1,8 @@
 import { ExSymbolBase } from '@/models/strategy/ex-symbol-base';
 import { ExTradeType } from '@/models/ex/exchange-types';
+import { OrderStatus, OrderTag } from '@/models/orders';
+import { TradeSide } from '@/models/base';
 
-export enum OrderTag {
-  open = 'open',
-  close = 'close',
-  stoploss = 'stoploss',
-  forceclose = 'forceclose',
-}
-
-export enum OrderStatus {
-  notSummited = 'notSummited',
-  summitFailed = 'summitFailed',
-  pending = 'pending',
-  partialFilled = 'partialFilled',
-  filled = 'filled',
-  canceled = 'canceled',
-  expired = 'expired',
-  rejected = 'rejected',
-}
 
 export class ExOrder extends ExSymbolBase {
   // userId: number;
@@ -30,7 +15,7 @@ export class ExOrder extends ExSymbolBase {
 
   tag?: OrderTag;
 
-  side: 'buy' | 'sell';
+  side: TradeSide;
 
   tradeType?: ExTradeType;
 
@@ -80,25 +65,15 @@ export class ExOrder extends ExSymbolBase {
 
   execAmount?: number;
 
-  exCreatedAt?: Date;
+  exCreatedAt?: string;
 
-  exUpdatedAt?: Date;
+  exUpdatedAt?: string;
 
   rawOrderParams?: any;
 
   rawOrder?: any;
 
   memo?: string;
-
-  static orderFinished(status: OrderStatus): boolean {
-    return ![
-      OrderStatus.notSummited,
-      OrderStatus.pending,
-      OrderStatus.partialFilled,
-    ].includes(status);
-  }
-
-  static orderToWait(status: OrderStatus): boolean {
-    return [OrderStatus.pending, OrderStatus.partialFilled].includes(status);
-  }
 }
+
+
