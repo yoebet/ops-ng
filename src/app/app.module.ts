@@ -20,6 +20,7 @@ import { UsersComponent } from '@/app/sys/user/users.component';
 import { ThemeSwitchComponent } from '@/app/home/theme-switch.component';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { routes } from '@/app/app.routes';
+import { StrategyTemplatesComponent } from '@/app/strategy-template/strategy-templates.component';
 
 
 @NgModule({
@@ -41,7 +42,7 @@ import { routes } from '@/app/app.routes';
     AppComponent, MessageDialogComponent,
     ChangePwdComponent, LoginDialogComponent, HomeComponent, ThemeSwitchComponent,
     UserDetailComponent, UserEditComponent, UserPwdResetComponent, UsersComponent,
-    KlineChartComponent,
+    KlineChartComponent, StrategyTemplatesComponent,
   ],
   bootstrap: [AppComponent],
   providers: [

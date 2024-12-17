@@ -11,7 +11,7 @@ export class StrategyTemplateService extends ModelCurdService<StrategyTemplate> 
   constructor(protected override http: HttpClient,
               protected override dialog: MatDialog) {
     super(http, dialog);
-    this.baseUrl = this.apiBase + `/strategy-template`;
+    this.baseUrl = this.apiBase + `/strategy-templates`;
   }
 
 }
