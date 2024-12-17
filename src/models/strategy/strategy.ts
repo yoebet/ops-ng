@@ -34,4 +34,8 @@ export class Strategy extends ExSymbolBase {
   paperTrade?: boolean;
 
   jobSummited?: boolean;
+
+  dealsCount?: number;
+  
+  ordersCount?: number;
 }

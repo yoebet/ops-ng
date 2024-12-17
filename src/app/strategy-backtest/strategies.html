@@ -145,6 +145,20 @@
       </td>
     </ng-container>
 
+    <ng-container matColumnDef="dealsCount">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Deals</th>
+      <td mat-cell *matCellDef="let row">
+        {{ row.dealsCount }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="ordersCount">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Orders</th>
+      <td mat-cell *matCellDef="let row">
+        {{ row.ordersCount }}
+      </td>
+    </ng-container>
+
     <ng-container matColumnDef="actions">
       <th mat-header-cell *matHeaderCellDef></th>
       <td mat-cell *matCellDef="let row" align="end">

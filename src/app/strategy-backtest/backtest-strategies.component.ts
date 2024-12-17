@@ -41,6 +41,8 @@ export class BacktestStrategiesComponent extends SessionSupportComponent impleme
     'completedAt',
     'active',
     'jobSummited',
+    'dealsCount',
+    'ordersCount',
     'actions'
   ];
 

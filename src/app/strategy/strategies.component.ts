@@ -41,6 +41,8 @@ export class StrategiesComponent extends SessionSupportComponent implements Afte
     'paperTrade',
     'active',
     'jobSummited',
+    'dealsCount',
+    'ordersCount',
     'actions'
   ];
 
