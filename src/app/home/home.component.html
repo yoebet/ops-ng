@@ -54,53 +54,25 @@
              routerLinkActive="active-link">
             <span>K 线</span>
           </a>
-          <a mat-list-item routerLink="/quotes" class="menu-item"
-             routerLinkActive="active-link">
-            <span>币价</span>
-          </a>
         </mat-nav-list>
       </mat-expansion-panel>
 
       <mat-expansion-panel class="mat-elevation-z1" [expanded]="true">
-        <mat-expansion-panel-header expandedHeight="48px" collapsedHeight="48px">
-          <mat-panel-title>资产</mat-panel-title>
-        </mat-expansion-panel-header>
-        <mat-nav-list>
-          <a mat-list-item routerLink="/assets" class="menu-item"
-             routerLinkActive="active-link">
-            <span>资产</span>
-          </a>
-        </mat-nav-list>
-      </mat-expansion-panel>
-
-      <mat-expansion-panel class="mat-elevation-z1" [expanded]="true">
-        <mat-expansion-panel-header expandedHeight="48px" collapsedHeight="48px">
-          <mat-panel-title>订单</mat-panel-title>
-        </mat-expansion-panel-header>
-        <mat-nav-list>
-          <a mat-list-item routerLink="/orders" class="menu-item"
-             routerLinkActive="active-link">
-            <span>订单</span>
-          </a>
-        </mat-nav-list>
-      </mat-expansion-panel>
-
-      <mat-expansion-panel class="mat-elevation-z1" [expanded]="false">
         <mat-expansion-panel-header expandedHeight="48px" collapsedHeight="48px">
           <mat-panel-title>策略</mat-panel-title>
         </mat-expansion-panel-header>
         <mat-nav-list>
-          <!--<a mat-list-item routerLink="/strategies/all" class="menu-item"
-             routerLinkActive="active-link">
-            <span>全部策略</span>
-          </a>-->
-          <!--          <a mat-list-item [routerLink]="'/strategies/'+st.value.toLowerCase()" class="menu-item"-->
-          <!--             routerLinkActive="active-link" *ngFor="let st of ['a','b']">-->
-          <!--            <span>{{st.label}}</span>-->
-          <!--          </a>-->
           <a mat-list-item routerLink="/templates" class="menu-item"
              routerLinkActive="active-link">
             <span>Template</span>
+          </a>
+          <a mat-list-item routerLink="/strategies" class="menu-item"
+             routerLinkActive="active-link">
+            <span>Strategy</span>
+          </a>
+          <a mat-list-item routerLink="/bt-strategies" class="menu-item"
+             routerLinkActive="active-link">
+            <span>Backtest</span>
           </a>
         </mat-nav-list>
       </mat-expansion-panel>
@@ -113,14 +85,6 @@
           <a mat-list-item routerLink="/exchs" class="menu-item"
              routerLinkActive="active-link">
             <span>交易所</span>
-          </a>
-          <a mat-list-item routerLink="/exapis" class="menu-item"
-             routerLinkActive="active-link">
-            <span>交易所API</span>
-          </a>
-          <a mat-list-item routerLink="/users" class="menu-item"
-             routerLinkActive="active-link">
-            <span>用户</span>
           </a>
         </mat-nav-list>
       </mat-expansion-panel>

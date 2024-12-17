@@ -1,51 +1,60 @@
 import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { SessionSupportComponent } from '@/app/common/session-support.component';
 import { SessionService } from '@/services/sys/session.service';
-import { StrategyTemplate } from '@/models/strategy/strategy-template';
 import { MatSort } from '@angular/material/sort';
 import { MatTable } from '@angular/material/table';
 import { TableDatasource } from '@/app/common/table-datasource';
 import { User } from '@/models/sys/user';
-import { StrategyTemplateService } from '@/services/strategy/strategy-template.service';
 import { MessageDialogComponent } from '@/app/common/message-dialog/message-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
+import { MatPaginator } from '@angular/material/paginator';
+import { BacktestStrategyService } from '@/services/strategy/backtest-strategy.service';
+import { BacktestStrategy } from '@/models/strategy/backtest-strategy';
 
 @Component({
   standalone: false,
-  selector: 'strategy-templates',
-  templateUrl: './strategy-templates.html',
-  styleUrls: ['./strategy-templates.css']
+  selector: 'bt-strategies',
+  templateUrl: './strategies.html',
+  styleUrls: ['./strategies.css']
 })
-export class StrategyTemplatesComponent extends SessionSupportComponent implements AfterViewInit, OnInit {
+export class BacktestStrategiesComponent extends SessionSupportComponent implements AfterViewInit, OnInit {
 
+  @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
-  @ViewChild(MatTable) table: MatTable<StrategyTemplate>;
+  @ViewChild(MatTable) table: MatTable<BacktestStrategy>;
 
-  dataSource: TableDatasource<StrategyTemplate>;
+  dataSource: TableDatasource<BacktestStrategy>;
 
-  displayedColumns: (keyof StrategyTemplate | 'index' | 'actions')[] = [
+  displayedColumns: (keyof BacktestStrategy | 'index' | 'actions')[] = [
     'index',
-    'name',
-    'code',
+    'ex',
+    'symbol',
+    // 'name',
     'openAlgo',
     'closeAlgo',
     'openDealSide',
     'tradeType',
     'quoteAmount',
+    'dataFrom',
+    'dataTo',
+    'startedAt',
+    'completedAt',
+    'active',
+    'jobSummited',
     'actions'
   ];
 
   processes: { [name: string]: boolean } = {};
 
   constructor(protected override sessionService: SessionService,
-              protected stService: StrategyTemplateService,
+              protected stService: BacktestStrategyService,
               protected dialog: MatDialog) {
     super(sessionService);
   }
 
   protected override onInit() {
     super.onInit();
-    this.dataSource = new TableDatasource<StrategyTemplate>();
+    this.dataSource = new TableDatasource<BacktestStrategy>();
   }
 
   protected override withSession(user: User) {
@@ -55,28 +64,29 @@ export class StrategyTemplatesComponent extends SessionSupportComponent implemen
 
   ngAfterViewInit() {
     this.dataSource.sort = this.sort;
+    this.dataSource.paginator = this.paginator;
     this.table.dataSource = this.dataSource;
   }
 
 
   refresh() {
-    this.dataSource.setObservable(this.stService.list2());
+    this.dataSource.setObservable(this.stService.list2())
   }
 
 
-  showParams(st: StrategyTemplate) {
+  showParams(st: BacktestStrategy) {
     if (st.params) {
       this.doShowParams(st);
       return;
     }
     this.stService.getById2(st.id)
-      .subscribe((st2: StrategyTemplate) => {
+      .subscribe((st2: BacktestStrategy) => {
         Object.assign(st, st2);
         this.doShowParams(st);
       });
   }
 
-  private doShowParams(st: StrategyTemplate) {
+  private doShowParams(st: BacktestStrategy) {
     const msg = JSON.stringify(st.params, null, 2);
     const title = `Params（${st.name}）`;
     const data = { msg, type: '', title };

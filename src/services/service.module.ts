@@ -10,6 +10,7 @@ import { JwtModule } from '@auth0/angular-jwt';
 import { AUTHORIZATION_HEADER, LocalStorageKeys } from '@/constants';
 import { StrategyService } from '@/services/strategy/strategy.service';
 import { StrategyTemplateService } from '@/services/strategy/strategy-template.service';
+import { BacktestStrategyService } from '@/services/strategy/backtest-strategy.service';
 
 @NgModule({
   imports: [
@@ -30,8 +31,9 @@ import { StrategyTemplateService } from '@/services/strategy/strategy-template.s
     SessionService,
     UserService,
     UserProfileService,
-    StrategyService,
     StrategyTemplateService,
+    StrategyService,
+    BacktestStrategyService,
   ]
 })
 export class ServiceModule {
