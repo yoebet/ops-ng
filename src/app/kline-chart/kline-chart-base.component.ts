@@ -22,6 +22,9 @@ export abstract class KlineChartBaseComponent implements OnInit, OnDestroy, Afte
   protected chartHeight = 600;
   protected chartDarkTheme: boolean;
 
+  protected bottomGridTop = '63%';
+  protected bottomGridTitleTop = '63.5%';
+
   protected themeSubscription: Subscription;
   protected navDrawerSubscription: Subscription;
   protected windowWidth: number;
@@ -168,14 +171,17 @@ export abstract class KlineChartBaseComponent implements OnInit, OnDestroy, Afte
           // show: true,
           formatter: (params) => {
             const { seriesData, axisDimension, axisIndex, value } = params;
-            // console.log(params);
+            console.log(params);
             if (axisDimension === 'y') {
               if (axisIndex === 1) { // Volume
                 return volumeFormatter(value as number);
               }
               if (typeof value === 'number') {
-                const priceDigits = this.chartData?.priceDigits || 2
-                return value.toPrecision(priceDigits);
+                const priceDigits = this.chartData?.priceDigits;
+                if (priceDigits != null) {
+                  return value.toFixed(priceDigits);
+                }
+                return value.toPrecision(6);
               }
               return undefined;
             }
@@ -232,7 +238,7 @@ export abstract class KlineChartBaseComponent implements OnInit, OnDestroy, Afte
         {
           left: 20,
           right: 80,
-          top: '63%',
+          top: this.bottomGridTop,
           height: '16%'
         }
       ],
@@ -363,7 +369,8 @@ export abstract class KlineChartBaseComponent implements OnInit, OnDestroy, Afte
   buildTitleOption(): EChartsOption['title'] {
     const { es, timeLevel, currentKline: kl, priceDigits } = this.chartData || {};
     const title = es && timeLevel ? `${es.ex} ${es.symbol} ${timeLevel.interval}` : '';
-    let info: string;
+    let candleInfo: string;
+    let volInfo: string;
     if (kl) {
       if (!kl.dateStr) {
         const pf = (priceDigits != null) ?
@@ -387,20 +394,32 @@ export abstract class KlineChartBaseComponent implements OnInit, OnDestroy, Afte
       const vs = [
         ['O', kl.open_s], ['C', kl.close_s], ['H', kl.high_s], ['L', kl.low_s],
         ['CH', kl.p_cp_s], ['AP', kl.p_ap_s],
-        ['Size', kl.size_s], ['Amount', kl.amount_s], ['Buy', kl.v_bp_s],
       ].map(nv => nv.join(' ')).join('  ');
-      info = `${kl.dateStr} ${vs}`;
+      candleInfo = `${kl.dateStr} ${vs}`;
+      volInfo = [['Size', kl.size_s], ['Amount', kl.amount_s], ['Buy', kl.v_bp_s]].map(nv => nv.join(' ')).join('  ');
     }
-    return {
-      text: title,
-      textStyle: {
-        fontFamily: 'monospace',
+    return [
+      {
+        text: title,
+        textStyle: {
+          fontFamily: 'monospace',
+        },
+        subtext: candleInfo,
+        subtextStyle: {
+          fontFamily: 'monospace',
+        }
       },
-      subtext: info,
-      subtextStyle: {
-        fontFamily: 'monospace',
-      }
-    } as EChartsOption['title'];
+      {
+        top: this.bottomGridTitleTop,
+        text: '',
+        textStyle: {
+          fontFamily: 'monospace',
+        },
+        subtext: volInfo,
+        subtextStyle: {
+          fontFamily: 'monospace',
+        }
+      }] as EChartsOption['title'];
   }
 
   updateChartData() {
@@ -423,6 +442,15 @@ export abstract class KlineChartBaseComponent implements OnInit, OnDestroy, Afte
       },
       series
     } as EChartsOption);
+  }
+
+  ngOnDestroy() {
+    if (this.themeSubscription) {
+      this.themeSubscription.unsubscribe();
+    }
+    if (this.navDrawerSubscription) {
+      this.navDrawerSubscription.unsubscribe();
+    }
   }
 
   protected getValueFormatter(formatter: (v) => string) {
@@ -484,8 +512,20 @@ export abstract class KlineChartBaseComponent implements OnInit, OnDestroy, Afte
       align: 'auto',
       // right: 10,
       // left: 10,
-      data: this.mas.map(m => `MA${m}`)
-        .concat(this.bollingerBandNames.map(b => b.name)).concat(['Kline'])
+      data: [
+        ...this.mas.map(m => `MA${m}`),
+        // ...this.bollingerBandNames.map(b => b.name),
+        'BB',
+        // 'circle', 'rect', 'roundRect', 'triangle', 'diamond', 'pin', 'arrow', 'none'
+        {
+          name: 'HL',
+          icon: 'pin',
+        },
+        {
+          name: 'Order',
+          icon: 'circle',
+        }
+      ]
     }
   }
 
@@ -510,8 +550,71 @@ export abstract class KlineChartBaseComponent implements OnInit, OnDestroy, Afte
           y: ['open', 'close', 'low', 'high'],
           // tooltip: ['open', 'close', 'low', 'high'],
         },
+      },
+      {
+        name: 'Volume',
+        // type: 'bar',
+        xAxisIndex: 1,
+        yAxisIndex: 1,
+        datasetIndex: 0,
+        encode: {
+          x: 'ts',
+          y: ['amount'],
+          // tooltip: ['amount']
+        },
+        type: 'custom',
+        renderItem: this.volBarRenderItem,
+        tooltip: {
+          valueFormatter: this.getValueFormatter(volumeFormatter)
+        },
+      },
+      ...(this.mas || []).map((m) => ({
+        name: `MA${m}`,
+        type: 'line',
+        showSymbol: false,
+        datasetIndex: 0,
+        encode: {
+          x: 'ts',
+          y: `ma${m}`,
+        },
+        smooth: true,
+        lineStyle: {
+          opacity: 0.5
+        },
+        tooltip: {
+          show: false
+        }
+      } as EChartsOption['series'])) as [],
+      ...this.bollingerBandNames.map((m) => ({
+        name: 'BB',
+        type: 'line',
+        showSymbol: false,
+        datasetIndex: 0,
+        encode: {
+          x: 'ts',
+          y: m.field,
+        },
+        smooth: true,
+        lineStyle: {
+          opacity: 0.5
+        },
+        tooltip: {
+          show: false
+        }
+      } as EChartsOption['series'])) as [],
+      {
+        name: 'HL',
+        type: 'custom',
+        renderItem: (params) => {
+          return undefined;
+        },
+        datasetIndex: 0,
+        encode: {
+          x: 'ts',
+          y: ['open', 'close', 'low', 'high'],
+          // tooltip: ['open', 'close', 'low', 'high'],
+        },
         markPoint: {
-          name: 'NN',
           // 'circle', 'rect', 'roundRect', 'triangle', 'diamond', 'pin', 'arrow', 'none'
           // symbol: 'arrow',
           // symbolSize: 18,
@@ -541,6 +644,7 @@ export abstract class KlineChartBaseComponent implements OnInit, OnDestroy, Afte
                 opacity: 0.9,
               },
               // symbol: 'rect',
+              symbolSize: 36,
             },
             {
               name: 'Low',
@@ -548,7 +652,7 @@ export abstract class KlineChartBaseComponent implements OnInit, OnDestroy, Afte
               valueDim: 'low',
               label: {
                 formatter: function (param) {
-                  return '\n\nL';
+                  return '\nL';
                 }
               },
               itemStyle: {
@@ -556,7 +660,38 @@ export abstract class KlineChartBaseComponent implements OnInit, OnDestroy, Afte
                 opacity: 0.9,
               },
               symbolRotate: 180,
+              symbolSize: 36,
+            }]
+        }
+      },
+      {
+        name: 'Order',
+        type: 'custom',
+        renderItem: (params) => {
+          return undefined;
+        },
+        datasetIndex: 0,
+        encode: {
+          x: 'ts',
+          y: ['open', 'close', 'low', 'high'],
+          // tooltip: ['open', 'close', 'low', 'high'],
+        },
+        markPoint: {
+          // 'circle', 'rect', 'roundRect', 'triangle', 'diamond', 'pin', 'arrow', 'none'
+          // symbol: 'arrow',
+          // symbolSize: 18,
+          tooltip: {
+            formatter: function (param) {
+              return param.name + ' ' + (param.value || '');
             },
+            trigger: 'item',
+          },
+          label: {
+            formatter: function (param) {
+              return param != null ? Math.round(param.value as number) + '' : '';
+            }
+          },
+          data: [
             ...buyKls.map(k => (
               {
                 name: 'Buy',
@@ -602,66 +737,6 @@ export abstract class KlineChartBaseComponent implements OnInit, OnDestroy, Afte
           ],
         }
       },
-      {
-        name: 'Volume',
-        // type: 'bar',
-        xAxisIndex: 1,
-        yAxisIndex: 1,
-        datasetIndex: 0,
-        encode: {
-          x: 'ts',
-          y: ['amount'],
-          // tooltip: ['amount']
-        },
-        type: 'custom',
-        renderItem: this.volBarRenderItem,
-        tooltip: {
-          valueFormatter: this.getValueFormatter(volumeFormatter)
-        },
-      },
-      ...(this.mas || []).map((m) => ({
-        name: `MA${m}`,
-        type: 'line',
-        showSymbol: false,
-        datasetIndex: 0,
-        encode: {
-          x: 'ts',
-          y: `ma${m}`,
-        },
-        smooth: true,
-        lineStyle: {
-          opacity: 0.5
-        },
-        tooltip: {
-          show: false
-        }
-      } as EChartsOption['series'])) as [],
-      ...this.bollingerBandNames.map((m) => ({
-        name: m.name,
-        type: 'line',
-        showSymbol: false,
-        datasetIndex: 0,
-        encode: {
-          x: 'ts',
-          y: m.field,
-        },
-        smooth: true,
-        lineStyle: {
-          opacity: 0.5
-        },
-        tooltip: {
-          show: false
-        }
-      } as EChartsOption['series'])) as [],
     ];
-  }
-
-  ngOnDestroy() {
-    if (this.themeSubscription) {
-      this.themeSubscription.unsubscribe();
-    }
-    if (this.navDrawerSubscription) {
-      this.navDrawerSubscription.unsubscribe();
-    }
   }
 }
