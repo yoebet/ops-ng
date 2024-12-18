@@ -10,17 +10,16 @@ import { KlineDataService } from '@/services/strategy/kline-data.service';
 
 
 @Component({
-  selector: 'kline-chart',
+  selector: 'kline-chart-demo',
   standalone: false,
-  templateUrl: './kline-chart.component.html',
-  styleUrl: './kline-chart.component.css'
+  templateUrl: './kline-chart-demo.component.html',
+  styleUrl: './kline-chart-demo.component.css'
 })
-export class KlineChartComponent extends KlineChartBaseComponent {
+export class KlineChartDemoComponent extends KlineChartBaseComponent {
   protected override mas = [10];
 
   constructor(protected override themeService: ThemeService,
-              protected override sessionService: SessionService,
-              protected klineDataService: KlineDataService) {
+              protected override sessionService: SessionService,) {
     super(themeService, sessionService);
   }
 
@@ -36,12 +35,18 @@ export class KlineChartComponent extends KlineChartBaseComponent {
     const klines = transformKline(rawData as any[] as Kline[],
       this.mas,
       this.bbOptions);
+    const timeLevel = TimeLevel.TL1mTo1d.slice(-1)[0];
     this.chartData = {
       es: { ex: 'binance', symbol: 'ETH/USDT' },
       // priceDigits: 2,
-      timeLevel: TimeLevel.TL1mTo1d.slice(-1)[0],
+      timeLevel,
       klines,
     };
+
+    klines.forEach(kl => {
+      kl.buyOrder = Math.random() < 0.1 ? {} as any : undefined;
+      kl.sellOrder = Math.random() < 0.1 ? {} as any : undefined;
+    })
 
     this.updateChartData();
   }

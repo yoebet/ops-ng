@@ -23,6 +23,8 @@ import { routes } from '@/app/app.routes';
 import { StrategyTemplatesComponent } from '@/app/strategy-template/strategy-templates.component';
 import { StrategiesComponent } from '@/app/strategy/strategies.component';
 import { BacktestStrategiesComponent } from '@/app/strategy-backtest/backtest-strategies.component';
+import { BacktestOrdersChartComponent } from '@/app/strategy-backtest/backtest-orders-chart.component';
+import { KlineChartDemoComponent } from '@/app/kline-chart/kline-chart-demo.component';
 
 
 @NgModule({
@@ -44,7 +46,9 @@ import { BacktestStrategiesComponent } from '@/app/strategy-backtest/backtest-st
     AppComponent, MessageDialogComponent,
     ChangePwdComponent, LoginDialogComponent, HomeComponent, ThemeSwitchComponent,
     UserDetailComponent, UserEditComponent, UserPwdResetComponent, UsersComponent,
-    KlineChartComponent, StrategyTemplatesComponent, StrategiesComponent, BacktestStrategiesComponent,
+    KlineChartDemoComponent, KlineChartComponent,
+    StrategyTemplatesComponent, StrategiesComponent,
+    BacktestStrategiesComponent, BacktestOrdersChartComponent,
   ],
   bootstrap: [AppComponent],
   providers: [

@@ -2,45 +2,14 @@ import { AfterViewInit, Component, ElementRef, HostListener, OnDestroy, OnInit, 
 import * as echarts from 'echarts';
 import { ECharts } from 'echarts';
 import { formatDate, volumeFormatter } from '@/common/utils';
-import { Kline } from '@/models/kline';
 import { TimeLevel } from '@/models/time-level';
 import { SessionService } from '@/services/sys/session.service';
 import { Subscription } from 'rxjs';
 import { ThemeService } from '@/services/style/theme.service';
 import { ES } from '@/models/base';
+import { BollingerBandOptions, ChartKline } from '@/app/kline-chart/kline-chart-data';
 
 type EChartsOption = echarts.EChartsOption;
-
-export interface KlineOrders {
-  side: 'buy' | 'sell';
-  count: number;
-  avgPrice: number;
-  size: number;
-  amount: number;
-}
-
-export interface ChartKline extends Kline {
-  i: number;
-  up: 1 | -1;
-  // ma5?: number;
-  // ma10?: number;
-  bbMa?: number;
-  bbUpper?: number;
-  bbLower?: number;
-  buyOrder?: KlineOrders;
-  sellOrder?: KlineOrders;
-  dateStr?: string;
-  dateStrLocal?: string;
-  size_s?: string;
-  amount_s?: string;
-  p_cp_s?: string;
-  p_ap_s?: string;
-  v_bp_s?: string;
-  open_s?: string;
-  high_s?: string;
-  low_s?: string;
-  close_s?: string;
-}
 
 @Component({
   template: '',
@@ -59,7 +28,7 @@ export abstract class KlineChartBaseComponent implements OnInit, OnDestroy, Afte
   protected resetChartHandler: ReturnType<typeof setTimeout>;
 
   protected mas = [/*10, 20*/];
-  protected bollingerBandOptions = { n: 20, times: 2 };
+  protected bbOptions: BollingerBandOptions = { n: 20, k: 2 };
   protected bollingerBandNames: { name: string, field: string }[] = [
     { name: 'BB-Lower', field: 'bbLower' },
     { name: 'BB-MA', field: 'bbMa' },

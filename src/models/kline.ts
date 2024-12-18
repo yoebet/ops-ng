@@ -1,7 +1,8 @@
+import { ES } from '@/models/base';
+
 export interface Kline {
   ts: number;
   // time?: string;
-  // time?: Date;
   size: number;
   amount: number;
   open: number;
@@ -19,3 +20,12 @@ export interface Kline {
   v_bp?: number;
 }
 
+
+export interface KlineParams extends ES {
+  tsFrom?: number;
+  tsTo?: number;
+  dateFrom?: string; // yyyy-MM-dd or yyyy-MM-dd HH:mm
+  dateTo?: string;
+  interval: string;
+  limit?: number;
+}
