@@ -1,8 +1,36 @@
-<!--<div>Date:
-  <span *ngIf="currentKline">
-  {{ currentKline.time }}
-    Price open: {{ currentKline.open }}
-    Volume (quote): {{ currentKline.amount }}
-    </span>
-</div>-->
+<div class="table-filter-form">
+  <div class="form-field">
+    <span class="label subordinated">Exchange</span>
+    <mat-button-toggle-group [value]="params.ex">
+      <mat-button-toggle [value]="ex" *ngFor="let ex of exchanges">
+        {{ ex }}
+      </mat-button-toggle>
+    </mat-button-toggle-group>
+  </div>
+  <div class="form-field">
+    <span class="label subordinated">Symbol</span>
+    <mat-button-toggle-group [value]="params.symbol">
+      <mat-button-toggle [value]="sym" *ngFor="let sym of symbols">
+        {{ sym }}
+      </mat-button-toggle>
+    </mat-button-toggle-group>
+  </div>
+  <div>
+    <span class="field-label subordinated">Interval</span>
+    <button mat-button [color]="params.interval===tl.interval? 'accent':null"
+            *ngFor="let tl of timeLevels" (click)="timeLevelSelected(tl)">
+      {{ tl.interval }}
+    </button>
+  </div>
+
+  <mat-form-field class="limit-field">
+    <span class="label subordinated">Limit</span>
+    <mat-select [(ngModel)]="params.limit">
+      <mat-option *ngFor="let limit of limits" [value]="limit">
+        {{ limit }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+</div>
+
 <div [style.width.px]="chartWidth" [style.height.px]="chartHeight" class="kline-chart" #chart></div>

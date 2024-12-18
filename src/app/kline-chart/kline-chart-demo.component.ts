@@ -44,8 +44,8 @@ export class KlineChartDemoComponent extends KlineChartBaseComponent {
     };
 
     klines.forEach(kl => {
-      kl.buyOrder = Math.random() < 0.1 ? {} as any : undefined;
-      kl.sellOrder = Math.random() < 0.1 ? {} as any : undefined;
+      kl.buyOrdersAgg = Math.random() < 0.1 ? {} as any : undefined;
+      kl.sellOrdersAgg = Math.random() < 0.1 ? {} as any : undefined;
     })
 
     this.updateChartData();

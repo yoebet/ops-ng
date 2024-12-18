@@ -15,7 +15,7 @@
   color: rgba(255, 255, 255, 0.7);
 }
 
-.active-link {
+.active-link * {
   color: yellow !important;
 }
 

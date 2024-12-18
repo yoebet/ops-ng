@@ -42,4 +42,6 @@ export class StrategyOrder extends BaseModel {
 
   memo?: string;
 
+  ts: number;
+
 }

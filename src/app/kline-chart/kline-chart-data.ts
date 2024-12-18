@@ -3,8 +3,7 @@ import * as _ from 'lodash';
 import { StrategyOrder } from '@/models/strategy/strategy-order';
 import { TimeLevel } from '@/models/time-level';
 
-export interface KlineOrders {
-  // side: 'buy' | 'sell';
+export interface OrdersAgg {
   count: number;
   avgPrice: number;
   size: number;
@@ -20,8 +19,8 @@ export interface ChartKline extends Kline {
   bbMa?: number;
   bbUpper?: number;
   bbLower?: number;
-  buyOrder?: KlineOrders;
-  sellOrder?: KlineOrders;
+  buyOrdersAgg?: OrdersAgg;
+  sellOrdersAgg?: OrdersAgg;
   dateStr?: string;
   dateStrLocal?: string;
   size_s?: string;
@@ -119,6 +118,48 @@ export function transformKline(kls: Kline[],
 }
 
 
-export function setKlineOrders(kls: ChartKline[], timeLevel: TimeLevel, orders: StrategyOrder[]) {
-  const { interval, intervalMs } = timeLevel;
+export function setKlineOrders(kls: ChartKline[],
+                               orders: StrategyOrder[],
+                               timeLevel: TimeLevel) {
+  // const { interval, intervalMs } = timeLevel;
+
+  for (const o of orders) {
+    if (!o.exUpdatedAt) {
+      continue;
+    }
+    if (!o.ts) {
+      o.ts = new Date(o.exUpdatedAt).getTime();
+    }
+    const ii = _.sortedIndexBy<{ ts: number }>(kls, o, 'ts')
+    let kl = kls[ii];
+    if (kl && kl.ts === o.ts) {
+    } else {
+      kl = kls[ii - 1];
+    }
+    if (!kl) {
+      continue;
+    }
+    const prop = `${o.side}OrdersAgg`;
+    let oa: OrdersAgg = kl[prop];
+    if (!oa) {
+      oa = {
+        orders: []
+      } as OrdersAgg;
+      kl[prop] = oa;
+    }
+    oa.orders.push(o);
+  }
+  const evalOrdersAgg = (oa: OrdersAgg) => {
+    const orders = oa.orders;
+    oa.count = orders.length;
+    oa.size = _.sumBy(orders, 'execSize');
+    if (oa.size) {
+      oa.amount = _.sumBy(orders, 'execAmount');
+      oa.avgPrice = oa.amount / oa.size;
+    }
+  }
+  for (const kl of kls) {
+    evalOrdersAgg(kl.buyOrdersAgg);
+    evalOrdersAgg(kl.sellOrdersAgg);
+  }
 }
