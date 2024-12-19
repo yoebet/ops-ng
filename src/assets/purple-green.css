@@ -9,6 +9,6 @@
   color: #4caf50 !important;
 }
 
-.active-link {
+.active-link, a.active-link * {
   color: #49ea36 !important;
 }

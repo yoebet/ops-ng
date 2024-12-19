@@ -56,9 +56,4 @@ export class KlineChartComponent extends KlineChartBaseComponent {
       this.updateChartData();
     });
   }
-
-  timeLevelSelected(tl: TimeLevel) {
-    this.params.interval = tl.interval;
-    this.refresh();
-  }
 }

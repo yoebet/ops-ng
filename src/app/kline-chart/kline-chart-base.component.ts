@@ -171,7 +171,6 @@ export abstract class KlineChartBaseComponent implements OnInit, OnDestroy, Afte
           // show: true,
           formatter: (params) => {
             const { seriesData, axisDimension, axisIndex, value } = params;
-            console.log(params);
             if (axisDimension === 'y') {
               if (axisIndex === 1) { // Volume
                 return volumeFormatter(value as number);
@@ -579,7 +578,8 @@ export abstract class KlineChartBaseComponent implements OnInit, OnDestroy, Afte
         },
         smooth: true,
         lineStyle: {
-          opacity: 0.5
+          width: 1,
+          // opacity: 0.8,
         },
         tooltip: {
           show: false
@@ -596,7 +596,8 @@ export abstract class KlineChartBaseComponent implements OnInit, OnDestroy, Afte
         },
         smooth: true,
         lineStyle: {
-          opacity: 0.5
+          width: 1,
+          // opacity: 0.8,
         },
         tooltip: {
           show: false
@@ -612,7 +613,6 @@ export abstract class KlineChartBaseComponent implements OnInit, OnDestroy, Afte
         encode: {
           x: 'ts',
           y: ['open', 'close', 'low', 'high'],
-          // tooltip: ['open', 'close', 'low', 'high'],
         },
         markPoint: {
           // 'circle', 'rect', 'roundRect', 'triangle', 'diamond', 'pin', 'arrow', 'none'
@@ -637,6 +637,7 @@ export abstract class KlineChartBaseComponent implements OnInit, OnDestroy, Afte
               label: {
                 formatter: function (param) {
                   return 'H';
+                  // return 'H ' + param.value;
                 }
               },
               itemStyle: {
@@ -653,6 +654,7 @@ export abstract class KlineChartBaseComponent implements OnInit, OnDestroy, Afte
               label: {
                 formatter: function (param) {
                   return '\nL';
+                  // return '\nL ' + param.value;
                 }
               },
               itemStyle: {

@@ -11,7 +11,7 @@
   color: #f44336;
 }
 
-a.active-link * {
+.active-link, a.active-link * {
   color: #ff4081 !important;
 }
 

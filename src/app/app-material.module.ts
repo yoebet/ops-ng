@@ -10,7 +10,7 @@ import { MatSortModule } from '@angular/material/sort';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { MatFormFieldModule } from '@angular/material/form-field';
+import { MAT_FORM_FIELD_DEFAULT_OPTIONS, MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDividerModule } from '@angular/material/divider';
@@ -32,6 +32,9 @@ import { MatSliderModule } from '@angular/material/slider';
 
 
 @NgModule({
+  providers: [
+    { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: 'outline' } }
+  ],
   exports: [
     MatToolbarModule,
     MatButtonModule,
