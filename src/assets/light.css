@@ -11,12 +11,12 @@
   color: #f44336;
 }
 
-.active-link, a.active-link * {
-  color: #ff4081 !important;
-}
-
 .subordinated {
   color: rgba(0, 0, 0, 0.7);
+}
+
+.active-link, a.active-link * {
+  color: #ff4081 !important;
 }
 
 .mat-icon.favorite {
