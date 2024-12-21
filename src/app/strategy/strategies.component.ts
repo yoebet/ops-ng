@@ -1,16 +1,16 @@
 import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
+import { MatTable } from '@angular/material/table';
 import { SessionSupportComponent } from '@/app/common/session-support.component';
 import { SessionService } from '@/services/sys/session.service';
 import { Strategy } from '@/models/strategy/strategy';
-import { MatSort } from '@angular/material/sort';
-import { MatTable } from '@angular/material/table';
 import { TableDatasource } from '@/app/common/table-datasource';
 import { User } from '@/models/sys/user';
 import { StrategyService } from '@/services/strategy/strategy.service';
 import { MessageDialogComponent } from '@/app/common/message-dialog/message-dialog.component';
-import { MatDialog } from '@angular/material/dialog';
-import { MatPaginator } from '@angular/material/paginator';
-import { ActivatedRoute } from '@angular/router';
 
 @Component({
   standalone: false,
@@ -24,7 +24,7 @@ export class StrategiesComponent extends SessionSupportComponent implements Afte
   @ViewChild(MatSort) sort: MatSort;
   @ViewChild(MatTable) table: MatTable<Strategy>;
 
-  type?: 'paper' | 'real' = 'real';
+  type?: 'paper' | 'real';
 
   dataSource: TableDatasource<Strategy>;
 
