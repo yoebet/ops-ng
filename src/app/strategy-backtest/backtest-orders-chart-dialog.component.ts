@@ -3,9 +3,10 @@ import { ThemeService } from '@/services/style/theme.service';
 import { SessionService } from '@/services/sys/session.service';
 import { BacktestStrategyService } from '@/services/strategy/backtest-strategy.service';
 import { BacktestStrategy } from '@/models/strategy/backtest-strategy';
-import { KlineDataService } from '@/services/strategy/kline-data.service';
+import { KlineDataService } from '@/services/market-data/kline-data.service';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { BacktestOrdersChartBaseComponent } from '@/app/strategy-backtest/backtest-orders-chart-base.component';
+import { ExKlineDataService } from '@/services/market-data/ex-kline-data.service';
 
 
 @Component({
@@ -19,9 +20,10 @@ export class BacktestOrdersChartDialogComponent extends BacktestOrdersChartBaseC
               protected override sessionService: SessionService,
               protected override stService: BacktestStrategyService,
               protected override klineDataService: KlineDataService,
+              protected override exKlineDataService: ExKlineDataService,
               @Inject(MAT_DIALOG_DATA) public data: BacktestStrategy,
   ) {
-    super(themeService, sessionService, stService, klineDataService);
+    super(themeService, sessionService, stService, klineDataService, exKlineDataService);
 
     this.strategy = data;
 

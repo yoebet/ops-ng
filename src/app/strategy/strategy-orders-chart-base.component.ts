@@ -5,16 +5,20 @@ import { KlineChartBaseComponent } from '../kline-chart/kline-chart-base.compone
 import { ThemeService } from '@/services/style/theme.service';
 import { SessionService } from '@/services/sys/session.service';
 import { ChartKline, setKlineOrders, transformKline } from '@/app/kline-chart/kline-chart-data';
-import { KlineDataService } from '@/services/strategy/kline-data.service';
+import { KlineDataService } from '@/services/market-data/kline-data.service';
 import { Strategy } from '@/models/strategy/strategy';
 import { DateTime } from 'luxon';
 import { StrategyService } from '@/services/strategy/strategy.service';
+import { ExKlineDataService } from '@/services/market-data/ex-kline-data.service';
 
 
 @Component({
   template: '',
 })
 export abstract class StrategyOrdersChartBaseComponent extends KlineChartBaseComponent {
+  protected override mas = [10];
+  protected strategy: Strategy;
+
   timeLevels = TimeLevel.TL1mTo1d;
   limits = [300, 1000, 3000];
   params: KlineParams = {
@@ -23,13 +27,14 @@ export abstract class StrategyOrdersChartBaseComponent extends KlineChartBaseCom
     interval: '1d',
     limit: this.limits[0],
   };
-  protected override mas = [10];
-  protected strategy: Strategy;
+  klineSources = ['ex', 'db']
+  klineSource = 'ex';
 
   protected constructor(protected override themeService: ThemeService,
                         protected override sessionService: SessionService,
                         protected stService: StrategyService,
                         protected klineDataService: KlineDataService,
+                        protected exKlineDataService: ExKlineDataService
   ) {
     super(themeService, sessionService);
   }
@@ -66,7 +71,11 @@ export abstract class StrategyOrdersChartBaseComponent extends KlineChartBaseCom
       return;
     }
     const timeLevel: TimeLevel = TimeLevel.TL1mTo1d.find(tl => tl.interval === params.interval);
-    this.klineDataService.query(params).subscribe((kls: Kline[]) => {
+    let obs = this.klineDataService.query(params);
+    if (this.klineSource === 'ex') {
+      obs = this.exKlineDataService.query(params);
+    }
+    obs.subscribe((kls: Kline[]) => {
       const klines: ChartKline[] = transformKline(kls,
         this.mas,
         this.bbOptions);

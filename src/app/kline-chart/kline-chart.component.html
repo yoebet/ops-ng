@@ -1,5 +1,10 @@
 <div>
   <div class="mb-2">
+    <mat-label class="mr-4">Source</mat-label>
+    <button class="mr-4" mat-button [class]="klineSource===source? 'active-link':null"
+            *ngFor="let source of klineSources" (click)="klineSource=source;refresh()">
+      {{ source }}
+    </button>
     <mat-label class="mr-4">Exchange</mat-label>
     <button mat-button [class]="params.ex===ex? 'active-link':null"
             *ngFor="let ex of exchanges" (click)="params.ex=ex;refresh()">

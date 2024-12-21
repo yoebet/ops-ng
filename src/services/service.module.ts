@@ -11,7 +11,8 @@ import { AUTHORIZATION_HEADER, LocalStorageKeys } from '@/constants';
 import { StrategyService } from '@/services/strategy/strategy.service';
 import { StrategyTemplateService } from '@/services/strategy/strategy-template.service';
 import { BacktestStrategyService } from '@/services/strategy/backtest-strategy.service';
-import { KlineDataService } from '@/services/strategy/kline-data.service';
+import { KlineDataService } from '@/services/market-data/kline-data.service';
+import { ExKlineDataService } from '@/services/market-data/ex-kline-data.service';
 
 @NgModule({
   imports: [
@@ -36,6 +37,7 @@ import { KlineDataService } from '@/services/strategy/kline-data.service';
     StrategyService,
     BacktestStrategyService,
     KlineDataService,
+    ExKlineDataService,
   ]
 })
 export class ServiceModule {

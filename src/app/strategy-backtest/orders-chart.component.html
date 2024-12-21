@@ -18,6 +18,13 @@
     </div>
   </div>
   <div class="mb-2">
+    <mat-label class="mr-4">Source</mat-label>
+    <button class="mr-4" mat-button [class]="klineSource===source? 'active-link':null"
+            *ngFor="let source of klineSources" (click)="klineSource=source;refresh()">
+      {{ source }}
+    </button>
+  </div>
+  <div class="mb-2">
     <mat-label class="mr-4">Interval</mat-label>
     <button mat-button [class]="params.interval===tl.interval? 'active-link':null"
             *ngFor="let tl of timeLevels" (click)="params.interval=tl.interval;refresh()">
