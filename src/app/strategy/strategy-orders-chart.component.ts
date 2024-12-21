@@ -2,21 +2,21 @@ import { Component } from '@angular/core';
 import { ThemeService } from '@/services/style/theme.service';
 import { SessionService } from '@/services/sys/session.service';
 import { ActivatedRoute, ParamMap } from '@angular/router';
-import { BacktestStrategyService } from '@/services/strategy/backtest-strategy.service';
 import { KlineDataService } from '@/services/strategy/kline-data.service';
-import { BacktestOrdersChartBaseComponent } from '@/app/strategy-backtest/backtest-orders-chart-base.component';
+import { StrategyOrdersChartBaseComponent } from '@/app/strategy/strategy-orders-chart-base.component';
+import { StrategyService } from '@/services/strategy/strategy.service';
 
 
 @Component({
   standalone: false,
-  selector: 'strategy-backtest-orders-chart',
+  selector: 'strategy-orders-chart',
   templateUrl: './orders-chart.component.html',
 })
-export class BacktestOrdersChartComponent extends BacktestOrdersChartBaseComponent {
+export class StrategyOrdersChartComponent extends StrategyOrdersChartBaseComponent {
 
   constructor(protected override themeService: ThemeService,
               protected override sessionService: SessionService,
-              protected override stService: BacktestStrategyService,
+              protected override stService: StrategyService,
               protected override klineDataService: KlineDataService,
               protected activatedRoute: ActivatedRoute,
   ) {

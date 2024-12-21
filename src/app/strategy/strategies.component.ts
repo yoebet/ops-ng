@@ -11,6 +11,7 @@ import { TableDatasource } from '@/app/common/table-datasource';
 import { User } from '@/models/sys/user';
 import { StrategyService } from '@/services/strategy/strategy.service';
 import { MessageDialogComponent } from '@/app/common/message-dialog/message-dialog.component';
+import { StrategyOrdersChartDialogComponent } from '@/app/strategy/strategy-orders-chart-dialog.component';
 
 @Component({
   standalone: false,
@@ -41,7 +42,7 @@ export class StrategiesComponent extends SessionSupportComponent implements Afte
     'openDealSide',
     'tradeType',
     'quoteAmount',
-    'paperTrade',
+    // 'paperTrade',
     'active',
     'jobSummited',
     'dealsCount',
@@ -100,6 +101,18 @@ export class StrategiesComponent extends SessionSupportComponent implements Afte
     const title = `Params（${st.name}）`;
     const data = { msg, type: '', title };
     MessageDialogComponent.ShowMessageDialog(data, this.dialog, { disableClose: false, width: '480px' });
+  }
+
+  showKlineOrdersChart(st: Strategy) {
+    this.dialog.open(
+      StrategyOrdersChartDialogComponent, {
+        disableClose: true,
+        width: '1280px',
+        maxWidth: '90vw',
+        // height: '90vh',
+        // maxHeight: '96vh',
+        data: st,
+      });
   }
 
   editNew() {

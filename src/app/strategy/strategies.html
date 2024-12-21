@@ -146,6 +146,10 @@
           <!--          <mat-icon>gavel</mat-icon>-->
           Params
         </button>
+        <a mat-button routerLink="{{row.id}}/orders-chart">Chart</a>
+        <button mat-button (click)="showKlineOrdersChart(row)">
+          Chart (Popup)
+        </button>
 
       </td>
     </ng-container>

@@ -5,16 +5,16 @@ import { KlineChartBaseComponent } from '../kline-chart/kline-chart-base.compone
 import { ThemeService } from '@/services/style/theme.service';
 import { SessionService } from '@/services/sys/session.service';
 import { ChartKline, setKlineOrders, transformKline } from '@/app/kline-chart/kline-chart-data';
-import { BacktestStrategyService } from '@/services/strategy/backtest-strategy.service';
-import { BacktestStrategy } from '@/models/strategy/backtest-strategy';
 import { KlineDataService } from '@/services/strategy/kline-data.service';
-import { parseDateTimeUtc } from '@/app/common/utils';
+import { Strategy } from '@/models/strategy/strategy';
+import { DateTime } from 'luxon';
+import { StrategyService } from '@/services/strategy/strategy.service';
 
 
 @Component({
   template: '',
 })
-export abstract class BacktestOrdersChartBaseComponent extends KlineChartBaseComponent {
+export abstract class StrategyOrdersChartBaseComponent extends KlineChartBaseComponent {
   timeLevels = TimeLevel.TL1mTo1d;
   limits = [300, 1000, 3000];
   params: KlineParams = {
@@ -24,11 +24,11 @@ export abstract class BacktestOrdersChartBaseComponent extends KlineChartBaseCom
     limit: this.limits[0],
   };
   protected override mas = [10];
-  protected strategy: BacktestStrategy;
+  protected strategy: Strategy;
 
   protected constructor(protected override themeService: ThemeService,
                         protected override sessionService: SessionService,
-                        protected stService: BacktestStrategyService,
+                        protected stService: StrategyService,
                         protected klineDataService: KlineDataService,
   ) {
     super(themeService, sessionService);
@@ -39,14 +39,13 @@ export abstract class BacktestOrdersChartBaseComponent extends KlineChartBaseCom
     if (!st) {
       return;
     }
-    const { ex, symbol, dataFrom, dataTo } = st;
+    const { ex, symbol } = st;
     this.params.ex = ex;
     this.params.symbol = symbol;
-    const dtFrom = parseDateTimeUtc(dataFrom);
-    const dtTo = parseDateTimeUtc(dataTo).plus({ day: 1 });
+    const dtFrom = DateTime.fromISO(this.strategy.createdAt);
+    const dtTo = DateTime.now();
 
     this.params.dateFrom = dtFrom.minus({ day: 1 }).toISODate();
-    this.params.dateTo = dtTo.plus({ day: 1 }).toISODate();
 
     const seconds = dtTo.diff(dtFrom, 'seconds').get('seconds');
     const minBars = 50;

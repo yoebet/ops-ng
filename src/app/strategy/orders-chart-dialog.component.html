@@ -1,0 +1,30 @@
+<mat-dialog-content>
+  <div>
+    <div class="flex">
+      <div class="mb-2 mr-4">
+        <mat-label class="mr-4">Exchange</mat-label>
+        <span class="primary-color">{{ params.ex }}</span>
+      </div>
+      <div class="mb-2 mr-4">
+        <mat-label class="mr-4">Symbol</mat-label>
+        <span class="primary-color">{{ params.symbol }}</span>
+      </div>
+      <div class="mb-2 mr-4">
+        <mat-label class="mr-4">Strategy From</mat-label>
+        <span class="primary-color">{{ strategy?.createdAt }}</span>
+      </div>
+    </div>
+    <div class="mb-2">
+      <mat-label class="mr-4">Interval</mat-label>
+      <button mat-button [class]="params.interval===tl.interval? 'active-link':null"
+              *ngFor="let tl of timeLevels" (click)="params.interval=tl.interval;refresh()">
+        {{ tl.interval }}
+      </button>
+    </div>
+  </div>
+  <div [style.width.px]="chartWidth" [style.height.px]="chartHeight" class="kline-chart" #chart></div>
+</mat-dialog-content>
+
+<div mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close="">确定</button>
+</div>
