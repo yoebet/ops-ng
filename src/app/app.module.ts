@@ -24,7 +24,6 @@ import { StrategyTemplatesComponent } from '@/app/strategy-template/strategy-tem
 import { StrategiesComponent } from '@/app/strategy/strategies.component';
 import { BacktestStrategiesComponent } from '@/app/strategy-backtest/backtest-strategies.component';
 import { BacktestOrdersChartComponent } from '@/app/strategy-backtest/backtest-orders-chart.component';
-import { KlineChartDemoComponent } from '@/app/kline-chart/kline-chart-demo.component';
 import { BacktestOrdersChartDialogComponent } from '@/app/strategy-backtest/backtest-orders-chart-dialog.component';
 
 
@@ -47,8 +46,7 @@ import { BacktestOrdersChartDialogComponent } from '@/app/strategy-backtest/back
     AppComponent, MessageDialogComponent,
     ChangePwdComponent, LoginDialogComponent, HomeComponent, ThemeSwitchComponent,
     UserDetailComponent, UserEditComponent, UserPwdResetComponent, UsersComponent,
-    KlineChartDemoComponent, KlineChartComponent,
-    StrategyTemplatesComponent, StrategiesComponent,
+    KlineChartComponent, StrategyTemplatesComponent, StrategiesComponent,
     BacktestStrategiesComponent, BacktestOrdersChartComponent, BacktestOrdersChartDialogComponent,
   ],
   bootstrap: [AppComponent],

@@ -10,6 +10,7 @@ import { StrategyService } from '@/services/strategy/strategy.service';
 import { MessageDialogComponent } from '@/app/common/message-dialog/message-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   standalone: false,
@@ -22,6 +23,8 @@ export class StrategiesComponent extends SessionSupportComponent implements Afte
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
   @ViewChild(MatTable) table: MatTable<Strategy>;
+
+  type?: 'paper' | 'real' = 'real';
 
   dataSource: TableDatasource<Strategy>;
 
@@ -50,8 +53,12 @@ export class StrategiesComponent extends SessionSupportComponent implements Afte
 
   constructor(protected override sessionService: SessionService,
               protected stService: StrategyService,
+              private activatedRoute: ActivatedRoute,
               protected dialog: MatDialog) {
     super(sessionService);
+    activatedRoute.data.subscribe(rd => {
+      this.type = rd['type'];
+    });
   }
 
   protected override onInit() {
@@ -72,7 +79,7 @@ export class StrategiesComponent extends SessionSupportComponent implements Afte
 
 
   refresh() {
-    this.dataSource.setObservable(this.stService.list2());
+    this.dataSource.setObservable(this.stService.list2(null, { type: this.type }));
   }
 
 
