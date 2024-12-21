@@ -35,10 +35,6 @@ export class KlineChartComponent extends KlineChartBaseComponent {
     super(themeService, sessionService);
   }
 
-  override async ngOnInit() {
-    await super.ngOnInit();
-  }
-
   refresh() {
     const params = this.params;
     const timeLevel: TimeLevel = this.timeLevels.find(tl => tl.interval === params.interval);

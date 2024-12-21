@@ -150,6 +150,9 @@ export function setKlineOrders(kls: ChartKline[],
     oa.orders.push(o);
   }
   const evalOrdersAgg = (oa: OrdersAgg) => {
+    if (!oa) {
+      return;
+    }
     const orders = oa.orders;
     oa.count = orders.length;
     oa.size = _.sumBy(orders, 'execSize');

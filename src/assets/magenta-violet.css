@@ -9,7 +9,7 @@
   color: #dabfd2 !important;
 }
 
-.mat-toolbar {
+.main-toolbar.mat-toolbar {
   background: var(--mat-sys-primary-container);
   color: var(--mat-sys-on-primary-container);
   /*border: 1px solid var(--mat-sys-outline-variant);*/

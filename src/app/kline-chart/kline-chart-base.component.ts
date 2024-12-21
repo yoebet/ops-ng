@@ -7,7 +7,7 @@ import { SessionService } from '@/services/sys/session.service';
 import { Subscription } from 'rxjs';
 import { ThemeService } from '@/services/style/theme.service';
 import { ES } from '@/models/base';
-import { BollingerBandOptions, ChartKline } from '@/app/kline-chart/kline-chart-data';
+import { BollingerBandOptions, ChartKline, OrdersAgg } from '@/app/kline-chart/kline-chart-data';
 
 type EChartsOption = echarts.EChartsOption;
 
@@ -528,6 +528,13 @@ export abstract class KlineChartBaseComponent implements OnInit, OnDestroy, Afte
     }
   }
 
+  protected buildOrdersTooltipContent(ordersAgg: OrdersAgg) {
+    return `orders: ${ordersAgg.count}<br />
+price: ${ordersAgg.avgPrice.toPrecision(6)}<br />
+size: ${ordersAgg.size.toPrecision(6)}<br />
+amount: ${ordersAgg.amount.toPrecision(6)}`;
+  }
+
   protected buildSeries(): EChartsOption['series'] {
     const klines = this.chartData?.klines || [];
     const buyKls = klines.filter(k => k.buyOrdersAgg);
@@ -704,7 +711,7 @@ export abstract class KlineChartBaseComponent implements OnInit, OnDestroy, Afte
                 xAxis: k.ts,
                 yAxis: k.low,
                 // valueDim: 'low',
-                value: JSON.stringify(k.buyOrdersAgg, null, 2).replace(/\n/g, '<br />\n').replace(/ /g, '&nbsp'),
+                value: this.buildOrdersTooltipContent(k.buyOrdersAgg),
                 tooltip: {},
                 itemStyle: {
                   color: this.buyMarkerColor,
@@ -725,7 +732,7 @@ export abstract class KlineChartBaseComponent implements OnInit, OnDestroy, Afte
                 xAxis: k.ts,
                 yAxis: k.high,
                 // valueDim: 'high',
-                value: JSON.stringify(k.sellOrdersAgg, null, 2).replace(/\n/g, '<br />\n').replace(/ /g, '&nbsp'),
+                value: this.buildOrdersTooltipContent(k.sellOrdersAgg),
                 itemStyle: {
                   color: this.sellMarkerColor,
                   opacity: 0.9,
