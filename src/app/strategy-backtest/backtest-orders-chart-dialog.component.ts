@@ -1,30 +1,29 @@
-import { Component } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { Kline, KlineParams } from '@/models/kline';
 import { TimeLevel } from '@/models/time-level';
 import { KlineChartBaseComponent } from '../kline-chart/kline-chart-base.component';
 import { ThemeService } from '@/services/style/theme.service';
 import { SessionService } from '@/services/sys/session.service';
 import { ChartKline, setKlineOrders, transformKline } from '@/app/kline-chart/kline-chart-data';
-import { ActivatedRoute, ParamMap } from '@angular/router';
 import { BacktestStrategyService } from '@/services/strategy/backtest-strategy.service';
 import { BacktestStrategy } from '@/models/strategy/backtest-strategy';
 import { KlineDataService } from '@/services/strategy/kline-data.service';
 import { parseDateTimeUtc } from '@/app/common/utils';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 
 @Component({
   standalone: false,
-  selector: 'strategy-backtest-orders-chart',
-  templateUrl: './orders-chart.component.html',
+  selector: 'strategy-backtest-orders-chart-dialog',
+  templateUrl: './orders-chart-dialog.component.html',
 })
-export class BacktestOrdersChartComponent extends KlineChartBaseComponent {
+export class BacktestOrdersChartDialogComponent extends KlineChartBaseComponent {
   timeLevels = TimeLevel.TL1mTo1d;
-  limits = [300, 1000, 3000];
   params: KlineParams = {
     ex: '',
     symbol: '',
     interval: '1d',
-    limit: this.limits[0],
+    limit: 3000,
   };
   protected override mas = [10];
   protected strategy: BacktestStrategy;
@@ -33,41 +32,36 @@ export class BacktestOrdersChartComponent extends KlineChartBaseComponent {
               protected override sessionService: SessionService,
               protected stService: BacktestStrategyService,
               protected klineDataService: KlineDataService,
-              protected activatedRoute: ActivatedRoute,
+              @Inject(MAT_DIALOG_DATA) public data: BacktestStrategy,
   ) {
     super(themeService, sessionService);
 
-    this.activatedRoute.paramMap.subscribe((paramMap: ParamMap) => {
-      const strategyId = paramMap.get('id');
-      stService.getById2(+strategyId).subscribe(st => {
-        this.strategy = st;
-        if (!st) {
-          return;
-        }
-        const { ex, symbol, dataFrom, dataTo } = st;
-        this.params.ex = ex;
-        this.params.symbol = symbol;
-        const dtFrom = parseDateTimeUtc(dataFrom);
-        const dtTo = parseDateTimeUtc(dataTo).plus({ day: 1 });
+    this.strategy = data;
+    const { ex, symbol, dataFrom, dataTo } = this.strategy;
+    this.params.ex = ex;
+    this.params.symbol = symbol;
+    const dtFrom = parseDateTimeUtc(dataFrom);
+    const dtTo = parseDateTimeUtc(dataTo).plus({ day: 1 });
 
-        this.params.dateFrom = dtFrom.minus({ day: 1 }).toISODate();
-        this.params.dateTo = dtTo.plus({ day: 1 }).toISODate();
+    this.params.dateFrom = dtFrom.minus({ day: 1 }).toISODate();
+    this.params.dateTo = dtTo.plus({ day: 1 }).toISODate();
 
-        const seconds = dtTo.diff(dtFrom, 'seconds').get('seconds');
-        const minBars = 50;
-        for (const tl of TimeLevel.TL1mTo1d.slice().reverse()) {
-          if (seconds / tl.intervalSeconds >= minBars) {
-            this.params.interval = tl.interval;
-            break;
-          }
-        }
+    const seconds = dtTo.diff(dtFrom, 'seconds').get('seconds');
+    const minBars = 50;
+    for (const tl of TimeLevel.TL1mTo1d.slice().reverse()) {
+      if (seconds / tl.intervalSeconds >= minBars) {
+        this.params.interval = tl.interval;
+        break;
+      }
+    }
 
-        stService.getOrders(+strategyId).subscribe(result => {
-          st.orders = result.list;
-          this.refresh();
-        });
+    if (this.strategy.orders) {
+      stService.getOrders(this.strategy.id).subscribe(result => {
+        this.strategy.orders = result.list;
       });
-    });
+    } else {
+      this.refresh();
+    }
   }
 
   refresh() {

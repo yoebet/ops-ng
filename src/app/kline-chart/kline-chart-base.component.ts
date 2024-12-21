@@ -709,7 +709,7 @@ amount: ${ordersAgg.amount.toPrecision(6)}`;
                 symbolSize: 18,
                 // symbolRotate: 180,
                 xAxis: k.ts,
-                yAxis: k.low,
+                yAxis: k.low * 0.99,
                 // valueDim: 'low',
                 value: this.buildOrdersTooltipContent(k.buyOrdersAgg),
                 tooltip: {},
@@ -730,7 +730,7 @@ amount: ${ordersAgg.amount.toPrecision(6)}`;
                 symbol: 'circle',
                 symbolSize: 18,
                 xAxis: k.ts,
-                yAxis: k.high,
+                yAxis: k.high * 1.01,
                 // valueDim: 'high',
                 value: this.buildOrdersTooltipContent(k.sellOrdersAgg),
                 itemStyle: {

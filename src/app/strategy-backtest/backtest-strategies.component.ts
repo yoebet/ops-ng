@@ -10,6 +10,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { BacktestStrategyService } from '@/services/strategy/backtest-strategy.service';
 import { BacktestStrategy } from '@/models/strategy/backtest-strategy';
+import { BacktestOrdersChartDialogComponent } from '@/app/strategy-backtest/backtest-orders-chart-dialog.component';
 
 @Component({
   standalone: false,
@@ -27,13 +28,13 @@ export class BacktestStrategiesComponent extends SessionSupportComponent impleme
 
   displayedColumns: (keyof BacktestStrategy | 'index' | 'actions')[] = [
     'index',
-    'ex',
+    // 'ex',
     'symbol',
     // 'name',
     'openAlgo',
     'closeAlgo',
     'openDealSide',
-    'tradeType',
+    // 'tradeType',
     'quoteAmount',
     'dataFrom',
     'dataTo',
@@ -54,27 +55,15 @@ export class BacktestStrategiesComponent extends SessionSupportComponent impleme
     super(sessionService);
   }
 
-  protected override onInit() {
-    super.onInit();
-    this.dataSource = new TableDatasource<BacktestStrategy>();
-  }
-
-  protected override withSession(user: User) {
-    // this.$exchs = this.exchService.list2();
-    this.refresh();
-  }
-
   ngAfterViewInit() {
     this.dataSource.sort = this.sort;
     this.dataSource.paginator = this.paginator;
     this.table.dataSource = this.dataSource;
   }
 
-
   refresh() {
     this.dataSource.setObservable(this.stService.list2())
   }
-
 
   showParams(st: BacktestStrategy) {
     if (st.params) {
@@ -88,6 +77,20 @@ export class BacktestStrategiesComponent extends SessionSupportComponent impleme
       });
   }
 
+  editNew() {
+
+  }
+
+  protected override onInit() {
+    super.onInit();
+    this.dataSource = new TableDatasource<BacktestStrategy>();
+  }
+
+  protected override withSession(user: User) {
+    // this.$exchs = this.exchService.list2();
+    this.refresh();
+  }
+
   private doShowParams(st: BacktestStrategy) {
     const msg = JSON.stringify(st.params, null, 2);
     const title = `Params（${st.name}）`;
@@ -95,7 +98,15 @@ export class BacktestStrategiesComponent extends SessionSupportComponent impleme
     MessageDialogComponent.ShowMessageDialog(data, this.dialog, { disableClose: false, width: '480px' });
   }
 
-  editNew() {
-
+  showKlineOrdersChart(st: BacktestStrategy) {
+    this.dialog.open(
+      BacktestOrdersChartDialogComponent, {
+        disableClose: true,
+        width: '1280px',
+        maxWidth: '90vw',
+        // height: '90vh',
+        // maxHeight: '96vh',
+        data: st,
+      });
   }
 }
