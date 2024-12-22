@@ -12,6 +12,8 @@ import { User } from '@/models/sys/user';
 import { StrategyService } from '@/services/strategy/strategy.service';
 import { MessageDialogComponent } from '@/app/common/message-dialog/message-dialog.component';
 import { StrategyOrdersChartDialogComponent } from '@/app/strategy/strategy-orders-chart-dialog.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ResultCodes } from '@/models/api-result';
 
 @Component({
   standalone: false,
@@ -55,6 +57,7 @@ export class StrategiesComponent extends SessionSupportComponent implements Afte
   constructor(protected override sessionService: SessionService,
               protected stService: StrategyService,
               private activatedRoute: ActivatedRoute,
+              private snackBar: MatSnackBar,
               protected dialog: MatDialog) {
     super(sessionService);
     activatedRoute.data.subscribe(rd => {
@@ -113,6 +116,19 @@ export class StrategiesComponent extends SessionSupportComponent implements Afte
         // maxHeight: '96vh',
         data: st,
       });
+  }
+
+  operateJob(
+    st: Strategy,
+    op: 'summit' | 'remove' | 'stop' | 'retry' | 'clearLogs',
+  ) {
+    this.stService.operateJob(st.id, op).subscribe(result => {
+      if (result.code === ResultCodes.CODE_SUCCESS) {
+        this.snackBar.open(`<${op}> success`);
+      } else {
+        this.stService.showErrorMessage(result.message, op);
+      }
+    });
   }
 
   editNew() {

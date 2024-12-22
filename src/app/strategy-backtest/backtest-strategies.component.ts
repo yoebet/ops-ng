@@ -11,6 +11,9 @@ import { MatPaginator } from '@angular/material/paginator';
 import { BacktestStrategyService } from '@/services/strategy/backtest-strategy.service';
 import { BacktestStrategy } from '@/models/strategy/backtest-strategy';
 import { BacktestOrdersChartDialogComponent } from '@/app/strategy-backtest/backtest-orders-chart-dialog.component';
+import { Strategy } from '@/models/strategy/strategy';
+import { ResultCodes } from '@/models/api-result';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   standalone: false,
@@ -51,6 +54,7 @@ export class BacktestStrategiesComponent extends SessionSupportComponent impleme
 
   constructor(protected override sessionService: SessionService,
               protected stService: BacktestStrategyService,
+              private snackBar: MatSnackBar,
               protected dialog: MatDialog) {
     super(sessionService);
   }
@@ -108,5 +112,18 @@ export class BacktestStrategiesComponent extends SessionSupportComponent impleme
         // maxHeight: '96vh',
         data: st,
       });
+  }
+
+  operateJob(
+    st: BacktestStrategy,
+    op: 'summit' | 'remove' | 'stop' | 'retry' | 'clearLogs',
+  ) {
+    this.stService.operateJob(st.id, op).subscribe(result => {
+      if (result.code === ResultCodes.CODE_SUCCESS) {
+        this.snackBar.open(`<${op}> success`);
+      } else {
+        this.stService.showErrorMessage(result.message, op);
+      }
+    });
   }
 }

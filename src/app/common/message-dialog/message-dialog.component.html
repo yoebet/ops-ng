@@ -1,13 +1,13 @@
-<h3 mat-dialog-title>
-  <mat-icon class="title-icon" [class.warn-color]="type==='error'"
+<div mat-dialog-title>
+  <mat-icon class="mr-2 align-middle" [class.warn-color]="type==='error'"
             [class.primary-color]="type==='info'" *ngIf="type">
-    {{type === 'error' ? 'error_outline' : 'info'}}
+    {{ type === 'error' ? 'error_outline' : 'info' }}
   </mat-icon>
-  <span *ngIf="title">{{title}}</span>
-</h3>
+  <span *ngIf="title">{{ title }}</span>
+</div>
 
 <mat-dialog-content>
-  <div class="pre-wrap">{{msg}}</div>
+  <div class="pre-wrap">{{ msg }}</div>
 </mat-dialog-content>
 
 <div mat-dialog-actions align="end">

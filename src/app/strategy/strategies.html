@@ -2,8 +2,8 @@
   <mat-toolbar>
     <span class="toolbar-title">
       策略
-      <!--      <ng-template [ngIf]="strategyType">（{{ getTypeLabel(strategyType) }}）</ng-template>-->
-      <!--      <ng-template [ngIf]="!strategyType">（全部）</ng-template>-->
+      <ng-template [ngIf]="type==='paper'">（模拟）</ng-template>
+      <ng-template [ngIf]="type==='real'">（实盘）</ng-template>
     </span>
     <span class="spacer"></span>
     <button mat-stroked-button color="primary" (click)="editNew()">
@@ -27,7 +27,7 @@
 
   <div class="table-filter-form">
     <div class="form-field">
-      <span class="label subordinated">交易所</span>
+      <!--      <span class="label subordinated">交易所</span>-->
       <!--<mat-button-toggle-group [value]="filterEx"
                                (change)="exGroupChanged($event)">
         <mat-button-toggle value="all">全部</mat-button-toggle>
@@ -150,6 +150,28 @@
         <button mat-button (click)="showKlineOrdersChart(row)">
           Chart (Popup)
         </button>
+
+        <button mat-button [matMenuTriggerFor]="actions">
+          <mat-icon>more_vert</mat-icon>
+          Job
+        </button>
+        <mat-menu #actions="matMenu">
+          <button mat-menu-item (click)="operateJob(row, 'summit')">
+            Summit
+          </button>
+          <button mat-menu-item (click)="operateJob(row, 'remove')">
+            Remove
+          </button>
+          <button mat-menu-item (click)="operateJob(row, 'retry')">
+            Retry
+          </button>
+          <button mat-menu-item (click)="operateJob(row, 'stop')">
+            Stop
+          </button>
+          <button mat-menu-item (click)="operateJob(row, 'clearLogs')">
+            Clear Logs
+          </button>
+        </mat-menu>
 
       </td>
     </ng-container>

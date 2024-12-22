@@ -58,6 +58,11 @@ export class BaseService<M> extends LoginSupport {
   }
 
 
+  post0(url: string, form: M = null): Observable<ApiResult> {
+    return this.pipeDefault(this.http.post<ApiResult>(url, form));
+  }
+
+
   postForResult(url: string, form: M = null): Observable<ValueResult<M>> {
     return this.pipeDefault(this.http.post<ValueResult<M>>(url, form));
   }
