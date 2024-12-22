@@ -14,6 +14,7 @@ import { MessageDialogComponent } from '@/app/common/message-dialog/message-dial
 import { StrategyOrdersChartDialogComponent } from '@/app/strategy/strategy-orders-chart-dialog.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ResultCodes } from '@/models/api-result';
+import { StrategyDealsDialogComponent } from '@/app/strategy/strategy-deals-dialog.component';
 
 @Component({
   standalone: false,
@@ -27,9 +28,9 @@ export class StrategiesComponent extends SessionSupportComponent implements Afte
   @ViewChild(MatSort) sort: MatSort;
   @ViewChild(MatTable) table: MatTable<Strategy>;
 
-  type?: 'paper' | 'real';
-
   dataSource: TableDatasource<Strategy>;
+
+  type?: 'paper' | 'real';
 
   displayedColumns: (keyof Strategy | 'index' | 'actions')[] = [
     'index',
@@ -45,6 +46,7 @@ export class StrategiesComponent extends SessionSupportComponent implements Afte
     'tradeType',
     'quoteAmount',
     // 'paperTrade',
+    'createdAt',
     'active',
     'jobSummited',
     'dealsCount',
@@ -109,6 +111,18 @@ export class StrategiesComponent extends SessionSupportComponent implements Afte
   showKlineOrdersChart(st: Strategy) {
     this.dialog.open(
       StrategyOrdersChartDialogComponent, {
+        disableClose: true,
+        width: '1280px',
+        maxWidth: '90vw',
+        // height: '90vh',
+        // maxHeight: '96vh',
+        data: st,
+      });
+  }
+
+  showDeals(st: Strategy) {
+    this.dialog.open(
+      StrategyDealsDialogComponent, {
         disableClose: true,
         width: '1280px',
         maxWidth: '90vw',

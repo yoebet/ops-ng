@@ -6,6 +6,7 @@ import { Observable } from 'rxjs';
 import { ApiResult, ListResult } from '@/models/api-result';
 import { StrategyOrder } from '@/models/strategy/strategy-order';
 import { BacktestStrategy } from '@/models/strategy/backtest-strategy';
+import { StrategyDealSimple } from '@/models/strategy/strategy-deal-simple';
 
 
 @Injectable()
@@ -20,6 +21,11 @@ export class BacktestStrategyService extends ModelCurdService<BacktestStrategy> 
   getOrders(strategyId: number): Observable<ListResult<StrategyOrder>> {
     const url = `${this.baseUrl}/${strategyId}/orders`;
     return this.list0<StrategyOrder>(url);
+  }
+
+  getDeals(strategyId: number): Observable<ListResult<StrategyDealSimple>> {
+    const url = `${this.baseUrl}/${strategyId}/deals`;
+    return this.list0<StrategyDealSimple>(url);
   }
 
   operateJob(

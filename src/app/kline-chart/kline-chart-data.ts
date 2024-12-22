@@ -9,6 +9,7 @@ export interface OrdersAgg {
   size: number;
   amount: number;
   orders: StrategyOrder[];
+  tooltipContent?: string;
 }
 
 export interface ChartKline extends Kline {

@@ -1,6 +1,5 @@
 import { Component, Inject } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA, MatDialog, MatDialogContent, MatDialogConfig } from '@angular/material/dialog';
-import { MatIcon } from '@angular/material/icon';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogConfig } from '@angular/material/dialog';
 
 @Component({
   standalone: false,

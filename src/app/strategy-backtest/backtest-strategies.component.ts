@@ -11,9 +11,10 @@ import { MatPaginator } from '@angular/material/paginator';
 import { BacktestStrategyService } from '@/services/strategy/backtest-strategy.service';
 import { BacktestStrategy } from '@/models/strategy/backtest-strategy';
 import { BacktestOrdersChartDialogComponent } from '@/app/strategy-backtest/backtest-orders-chart-dialog.component';
-import { Strategy } from '@/models/strategy/strategy';
 import { ResultCodes } from '@/models/api-result';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { Strategy } from '@/models/strategy/strategy';
+import { BacktestDealsDialogComponent } from '@/app/strategy-backtest/backtest-deals-dialog.component';
 
 @Component({
   standalone: false,
@@ -41,6 +42,7 @@ export class BacktestStrategiesComponent extends SessionSupportComponent impleme
     'quoteAmount',
     'dataFrom',
     'dataTo',
+    'createdAt',
     'startedAt',
     'completedAt',
     'active',
@@ -105,6 +107,18 @@ export class BacktestStrategiesComponent extends SessionSupportComponent impleme
   showKlineOrdersChart(st: BacktestStrategy) {
     this.dialog.open(
       BacktestOrdersChartDialogComponent, {
+        disableClose: true,
+        width: '1280px',
+        maxWidth: '90vw',
+        // height: '90vh',
+        // maxHeight: '96vh',
+        data: st,
+      });
+  }
+
+  showDeals(st: Strategy) {
+    this.dialog.open(
+      BacktestDealsDialogComponent, {
         disableClose: true,
         width: '1280px',
         maxWidth: '90vw',
