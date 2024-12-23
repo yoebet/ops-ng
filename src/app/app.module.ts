@@ -28,7 +28,6 @@ import { BacktestOrdersChartDialogComponent } from '@/app/strategy-backtest/back
 import { StrategyOrdersChartComponent } from '@/app/strategy/strategy-orders-chart.component';
 import { StrategyOrdersChartDialogComponent } from '@/app/strategy/strategy-orders-chart-dialog.component';
 import { StrategyDealsDialogComponent } from '@/app/strategy/strategy-deals-dialog.component';
-import { BacktestDealsDialogComponent } from '@/app/strategy-backtest/backtest-deals-dialog.component';
 
 
 @NgModule({
@@ -53,7 +52,6 @@ import { BacktestDealsDialogComponent } from '@/app/strategy-backtest/backtest-d
     KlineChartComponent, StrategyTemplatesComponent, StrategyDealsDialogComponent,
     StrategiesComponent, StrategyOrdersChartComponent, StrategyOrdersChartDialogComponent,
     BacktestStrategiesComponent, BacktestOrdersChartComponent, BacktestOrdersChartDialogComponent,
-    BacktestDealsDialogComponent,
   ],
   bootstrap: [AppComponent],
   providers: [

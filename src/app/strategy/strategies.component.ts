@@ -129,7 +129,7 @@ export class StrategiesComponent extends SessionSupportComponent implements Afte
         maxWidth: '90vw',
         // height: '90vh',
         // maxHeight: '96vh',
-        data: st,
+        data: { strategy: st, backtest: false },
       });
   }
 

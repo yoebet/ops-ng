@@ -1,5 +1,3 @@
-import { ExSymbolBase } from '@/models/strategy/ex-symbol-base';
-import { ExTradeType } from '@/models/ex/exchange-types';
 import { BaseModel } from '@/models/base-model';
 
 export class StrategyDealSimple extends BaseModel {
@@ -16,4 +14,8 @@ export class StrategyDealSimple extends BaseModel {
   closedAt?: string;
 
   dealDuration?: string;
+
+  closeReason?: string;
+
+  ordersCount?: number;
 }

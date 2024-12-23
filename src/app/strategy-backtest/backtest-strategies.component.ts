@@ -14,7 +14,7 @@ import { BacktestOrdersChartDialogComponent } from '@/app/strategy-backtest/back
 import { ResultCodes } from '@/models/api-result';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Strategy } from '@/models/strategy/strategy';
-import { BacktestDealsDialogComponent } from '@/app/strategy-backtest/backtest-deals-dialog.component';
+import { StrategyDealsDialogComponent } from '@/app/strategy/strategy-deals-dialog.component';
 
 @Component({
   standalone: false,
@@ -44,8 +44,8 @@ export class BacktestStrategiesComponent extends SessionSupportComponent impleme
     'dataFrom',
     'dataTo',
     'createdAt',
-    'startedAt',
-    'completedAt',
+    // 'startedAt',
+    // 'completedAt',
     'active',
     'jobSummited',
     'dealsCount',
@@ -119,13 +119,13 @@ export class BacktestStrategiesComponent extends SessionSupportComponent impleme
 
   showDeals(st: Strategy) {
     this.dialog.open(
-      BacktestDealsDialogComponent, {
+      StrategyDealsDialogComponent, {
         disableClose: true,
         width: '1280px',
         maxWidth: '90vw',
         // height: '90vh',
         // maxHeight: '96vh',
-        data: st,
+        data: { strategy: st, backtest: true },
       });
   }
 

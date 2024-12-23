@@ -25,4 +25,8 @@ export class StrategyDeal extends ExSymbolBase {
   closedAt?: string;
 
   dealDuration?: string;
+
+  closeReason?: string;
+
+  ordersCount?: number;
 }
