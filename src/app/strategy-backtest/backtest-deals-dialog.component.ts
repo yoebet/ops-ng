@@ -33,18 +33,19 @@ export class BacktestDealsDialogComponent implements AfterViewInit, OnInit {
   constructor(
     protected stService: BacktestStrategyService,
     @Inject(MAT_DIALOG_DATA) public strategy: BacktestStrategy) {
-    if (strategy.deals) {
-      this.dataSource.setData(strategy.deals);
-    } else {
-      stService.getDeals(strategy.id).subscribe(result => {
-        strategy.deals = result.list;
-        this.dataSource.setData(strategy.deals);
-      });
-    }
   }
 
   ngOnInit() {
     this.dataSource = new TableDatasource<StrategyDealSimple>();
+    const strategy = this.strategy;
+    if (strategy.deals) {
+      this.dataSource.setData(strategy.deals);
+    } else {
+      this.stService.getDeals(strategy.id).subscribe(result => {
+        strategy.deals = result.list;
+        this.dataSource.setData(strategy.deals);
+      });
+    }
   }
 
   ngAfterViewInit() {
