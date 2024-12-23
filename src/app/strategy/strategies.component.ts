@@ -32,7 +32,7 @@ export class StrategiesComponent extends SessionSupportComponent implements Afte
 
   type?: 'paper' | 'real';
 
-  displayedColumns: (keyof Strategy | 'index' | 'actions')[] = [
+  displayedColumns: (keyof Strategy | 'index' | 'actions' | 'algo')[] = [
     'index',
     'ex',
     // 'market',
@@ -40,11 +40,12 @@ export class StrategiesComponent extends SessionSupportComponent implements Afte
     'symbol',
     // 'rawSymbol',
     'name',
-    'openAlgo',
-    'closeAlgo',
+    'algo',
+    // 'openAlgo',
+    // 'closeAlgo',
     'openDealSide',
     'tradeType',
-    'quoteAmount',
+    // 'quoteAmount',
     // 'paperTrade',
     'createdAt',
     'active',

@@ -11,5 +11,9 @@ export class StrategyDealSimple extends BaseModel {
 
   status: 'open' | 'closed' | 'canceled';
 
+  openAt?: string;
+
   closedAt?: string;
+
+  dealDuration?: string;
 }

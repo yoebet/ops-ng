@@ -20,5 +20,9 @@ export class StrategyDeal extends ExSymbolBase {
 
   paperTrade?: boolean;
 
+  openAt?: string;
+
   closedAt?: string;
+
+  dealDuration?: string;
 }

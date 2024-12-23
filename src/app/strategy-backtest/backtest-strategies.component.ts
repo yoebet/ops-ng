@@ -30,16 +30,17 @@ export class BacktestStrategiesComponent extends SessionSupportComponent impleme
 
   dataSource: TableDatasource<BacktestStrategy>;
 
-  displayedColumns: (keyof BacktestStrategy | 'index' | 'actions')[] = [
+  displayedColumns: (keyof BacktestStrategy | 'index' | 'actions' | 'algo')[] = [
     'index',
     // 'ex',
     'symbol',
     // 'name',
-    'openAlgo',
-    'closeAlgo',
+    'algo',
+    // 'openAlgo',
+    // 'closeAlgo',
     'openDealSide',
     // 'tradeType',
-    'quoteAmount',
+    // 'quoteAmount',
     'dataFrom',
     'dataTo',
     'createdAt',

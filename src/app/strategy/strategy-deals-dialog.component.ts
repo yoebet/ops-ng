@@ -24,8 +24,10 @@ export class StrategyDealsDialogComponent implements AfterViewInit, OnInit {
     'pendingOrderId',
     'lastOrderId',
     'pnlUsd',
-    'createdAt',
+    // 'createdAt',
+    'openAt',
     'closedAt',
+    'dealDuration',
   ]
 
   constructor(
