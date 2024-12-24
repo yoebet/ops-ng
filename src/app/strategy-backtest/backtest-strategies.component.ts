@@ -44,6 +44,7 @@ export class BacktestStrategiesComponent extends SessionSupportComponent impleme
     'dataFrom',
     'dataTo',
     'createdAt',
+    'memo',
     // 'startedAt',
     // 'completedAt',
     'active',

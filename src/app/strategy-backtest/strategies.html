@@ -131,6 +131,13 @@
       </td>
     </ng-container>
 
+    <ng-container matColumnDef="memo">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Memo</th>
+      <td mat-cell *matCellDef="let row">
+        {{ row.memo }}
+      </td>
+    </ng-container>
+
     <ng-container matColumnDef="startedAt">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>Started At</th>
       <td mat-cell *matCellDef="let row">
@@ -182,10 +189,17 @@
         <button mat-button (click)="showParams(row)">
           Params
         </button>
-        <a mat-button routerLink="{{row.id}}/orders-chart">Chart</a>
-        <button mat-button (click)="showKlineOrdersChart(row)">
-          Chart (Popup)
+
+        <button mat-button [matMenuTriggerFor]="charts">
+          <mat-icon>more_vert</mat-icon>
+          Chart
         </button>
+        <mat-menu #charts="matMenu">
+          <a mat-menu-item routerLink="{{row.id}}/orders-chart">Chart (Page)</a>
+          <button mat-menu-item (click)="showKlineOrdersChart(row)">
+            Chart (Popup)
+          </button>
+        </mat-menu>
 
         <button mat-button [matMenuTriggerFor]="actions">
           <mat-icon>more_vert</mat-icon>
