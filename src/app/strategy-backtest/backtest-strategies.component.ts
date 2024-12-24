@@ -142,4 +142,32 @@ export class BacktestStrategiesComponent extends SessionSupportComponent impleme
       }
     });
   }
+
+  clone(
+    st: BacktestStrategy,
+  ) {
+    const memo = st.memo ? (parseInt(st.memo) || 0) + 1 : 1;
+    this.stService.clone(st.id, '' + memo).subscribe(result => {
+      if (result.code === ResultCodes.CODE_SUCCESS) {
+        this.snackBar.open(`clone success`);
+        this.refresh();
+      } else {
+        this.stService.showErrorMessage(result.message, 'clone');
+      }
+    });
+  }
+
+  drop(st: BacktestStrategy) {
+    if (!confirm('Are you sure?')) {
+      return;
+    }
+    this.stService.remove(st.id).subscribe(result => {
+      if (result.code === ResultCodes.CODE_SUCCESS) {
+        this.snackBar.open(`remove success`);
+        this.refresh();
+      } else {
+        this.stService.showErrorMessage(result.message, 'remove');
+      }
+    });
+  }
 }

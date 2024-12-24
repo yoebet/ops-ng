@@ -4,7 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { Observable } from 'rxjs';
 import { ModelCurdService } from '../model-curd.service';
 import { Strategy } from '@/models/strategy/strategy';
-import { ApiResult, ListResult } from '@/models/api-result';
+import { ApiResult, ListResult, ValueResult } from '@/models/api-result';
 import { StrategyOrder } from '@/models/strategy/strategy-order';
 import { StrategyDealSimple } from '@/models/strategy/strategy-deal-simple';
 
@@ -34,6 +34,14 @@ export class StrategyService extends ModelCurdService<Strategy> {
   ): Observable<ApiResult> {
     const url = `${this.baseUrl}/${strategyId}/job/${op}`;
     return this.post0(url);
+  }
+
+  clone(
+    strategyId: number,
+    memo: string,
+  ): Observable<ValueResult<Strategy>> {
+    const url = `${this.baseUrl}/${strategyId}/clone`;
+    return this.postForResult(url, { memo } as any);
   }
 
 }

@@ -201,11 +201,11 @@
           </button>
         </mat-menu>
 
-        <button mat-button [matMenuTriggerFor]="actions">
+        <button mat-button [matMenuTriggerFor]="jobActions">
           <mat-icon>more_vert</mat-icon>
           Job
         </button>
-        <mat-menu #actions="matMenu">
+        <mat-menu #jobActions="matMenu">
           <button mat-menu-item (click)="operateJob(row, 'summit')">
             Summit
           </button>
@@ -221,6 +221,15 @@
           <button mat-menu-item (click)="operateJob(row, 'clearLogs')">
             Clear Logs
           </button>
+        </mat-menu>
+
+        <button mat-button [matMenuTriggerFor]="miscActions">
+          <mat-icon>more_vert</mat-icon>
+          Clone
+        </button>
+        <mat-menu #miscActions="matMenu">
+          <button mat-menu-item (click)="clone(row)">Clone</button>
+          <button mat-menu-item (click)="drop(row)">Drop</button>
         </mat-menu>
 
       </td>

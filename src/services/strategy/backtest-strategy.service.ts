@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { MatDialog } from '@angular/material/dialog';
 import { ModelCurdService } from '../model-curd.service';
 import { Observable } from 'rxjs';
-import { ApiResult, ListResult } from '@/models/api-result';
+import { ApiResult, ListResult, ValueResult } from '@/models/api-result';
 import { StrategyOrder } from '@/models/strategy/strategy-order';
 import { BacktestStrategy } from '@/models/strategy/backtest-strategy';
 import { StrategyDealSimple } from '@/models/strategy/strategy-deal-simple';
@@ -34,6 +34,14 @@ export class BacktestStrategyService extends ModelCurdService<BacktestStrategy> 
   ): Observable<ApiResult> {
     const url = `${this.baseUrl}/${strategyId}/job/${op}`;
     return this.post0(url);
+  }
+
+  clone(
+    strategyId: number,
+    memo: string,
+  ): Observable<ValueResult<BacktestStrategy>> {
+    const url = `${this.baseUrl}/${strategyId}/clone`;
+    return this.postForResult(url, { memo } as any);
   }
 
 }
