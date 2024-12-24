@@ -1,9 +1,9 @@
 <div class="mat-elevation-z1">
   <mat-toolbar>
     <span class="toolbar-title">
-      策略
-      <ng-template [ngIf]="type==='paper'">（模拟）</ng-template>
-      <ng-template [ngIf]="type==='real'">（实盘）</ng-template>
+      Strategy
+      <ng-template [ngIf]="type==='paper'">(Paper Trade)</ng-template>
+      <ng-template [ngIf]="type==='real'">(Real)</ng-template>
     </span>
     <span class="spacer"></span>
     <button mat-stroked-button color="primary" (click)="editNew()">
