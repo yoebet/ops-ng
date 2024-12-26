@@ -7,6 +7,9 @@ import { SessionService } from '@/services/sys/session.service';
 import { ChartKline, transformKline } from '@/app/kline-chart/kline-chart-data';
 import { KlineDataService } from '@/services/market-data/kline-data.service';
 import { ExKlineDataService } from '@/services/market-data/ex-kline-data.service';
+import { ExchangeService } from '@/services/sys/exchange.service';
+import { Option } from '@/models/base';
+import { UnifiedSymbol } from '@/models/ex/unified-symbol';
 
 
 @Component({
@@ -21,22 +24,29 @@ export class KlineChartComponent extends KlineChartBaseComponent {
   klineSources = ['ex', 'db']
   klineSource = 'db';
   timeLevels = TimeLevel.TL1mTo1d;
-  exchanges = ['binance', 'okx'];
-  symbols = ['BTC', 'ETH', 'DOGE'].map(c => `${c}/USDT`);
+  exchanges: Option[] = [];
+  symbols: UnifiedSymbol[] = [];
   limits = [100, 200, 300];
 
   params: KlineParams = {
-    ex: this.exchanges[0],
-    symbol: this.symbols[0],
+    ex: '',
+    symbol: '',
     interval: '1d',
     limit: this.limits[0],
   };
 
   constructor(protected override themeService: ThemeService,
               protected override sessionService: SessionService,
+              protected exchangeService: ExchangeService,
               protected klineDataService: KlineDataService,
               protected exKlineDataService: ExKlineDataService) {
     super(themeService, sessionService);
+    this.exchanges = exchangeService.getExchanges();
+    this.params.ex = this.exchanges[0]?.value;
+    exchangeService.listUnifiedSymbols().subscribe(us => {
+      this.symbols = us;
+      this.params.symbol = us[0]?.symbol;
+    });
   }
 
   refresh() {

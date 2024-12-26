@@ -7,3 +7,8 @@ export enum TradeSide {
   'buy' = 'buy',
   'sell' = 'sell',
 }
+
+export interface Option {
+  value: string;
+  label: string
+}

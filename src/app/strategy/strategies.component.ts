@@ -15,6 +15,9 @@ import { StrategyOrdersChartDialogComponent } from '@/app/strategy/strategy-orde
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ResultCodes } from '@/models/api-result';
 import { StrategyDealsDialogComponent } from '@/app/strategy/strategy-deals-dialog.component';
+import { UnifiedSymbol } from '@/models/ex/unified-symbol';
+import { ExchangeService } from '@/services/sys/exchange.service';
+import { StrategyEditDialogComponent } from '@/app/strategy/strategy-edit-dialog.component';
 
 @Component({
   standalone: false,
@@ -31,6 +34,7 @@ export class StrategiesComponent extends SessionSupportComponent implements Afte
   dataSource: TableDatasource<Strategy>;
 
   type?: 'paper' | 'real';
+  symbols: UnifiedSymbol[] = [];
 
   displayedColumns: (keyof Strategy | 'index' | 'actions' | 'algo')[] = [
     'index',
@@ -60,12 +64,16 @@ export class StrategiesComponent extends SessionSupportComponent implements Afte
 
   constructor(protected override sessionService: SessionService,
               protected stService: StrategyService,
+              protected exchangeService: ExchangeService,
               private activatedRoute: ActivatedRoute,
               private snackBar: MatSnackBar,
               protected dialog: MatDialog) {
     super(sessionService);
     activatedRoute.data.subscribe(rd => {
       this.type = rd['type'];
+    });
+    exchangeService.listUnifiedSymbols().subscribe(us => {
+      this.symbols = us;
     });
   }
 
@@ -134,6 +142,63 @@ export class StrategiesComponent extends SessionSupportComponent implements Afte
       });
   }
 
+  protected openEditDialog(st?: Strategy) {
+    const ref = this.dialog.open(
+      StrategyEditDialogComponent, {
+        disableClose: true,
+        width: '640px',
+        maxWidth: '90vw',
+        // maxHeight: '96vh',
+        data: {
+          strategy: st,
+          symbols: this.symbols,
+          paperTrade: this.type === 'paper',
+        },
+      });
+    ref.afterClosed().subscribe((result: Strategy) => {
+      if (result) {
+        // this.refresh();
+        const list = this.dataSource.data;
+        list.splice(0, 0, result);
+        this.dataSource.setData(list);
+      }
+    });
+  }
+
+  edit(st?: Strategy) {
+    if (st && st.id && !st.params) {
+      this.stService.getById2(st.id).subscribe((st2: Strategy) => {
+        Object.assign(st, st2);
+        this.openEditDialog(st);
+      });
+    } else {
+      this.openEditDialog(st);
+    }
+  }
+
+  duplicate(st: Strategy) {
+    const editDuplicate = () => {
+      const newSt = new Strategy();
+      Object.assign(newSt, st);
+      delete newSt.id;
+      delete newSt.createdAt;
+      this.edit(newSt);
+    };
+    if (!st.params) {
+      this.stService.getById2(st.id)
+        .subscribe((st2: Strategy) => {
+          Object.assign(st, st2);
+          editDuplicate();
+        });
+    } else {
+      editDuplicate();
+    }
+  }
+
+  editNew() {
+    this.edit(undefined);
+  }
+
   operateJob(
     st: Strategy,
     op: 'summit' | 'remove' | 'stop' | 'retry' | 'clearLogs',
@@ -179,9 +244,5 @@ export class StrategiesComponent extends SessionSupportComponent implements Afte
         this.stService.showErrorMessage(result.message, 'remove');
       }
     });
-  }
-
-  editNew() {
-
   }
 }

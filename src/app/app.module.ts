@@ -29,6 +29,7 @@ import { StrategyOrdersChartComponent } from '@/app/strategy/strategy-orders-cha
 import { StrategyOrdersChartDialogComponent } from '@/app/strategy/strategy-orders-chart-dialog.component';
 import { StrategyDealsDialogComponent } from '@/app/strategy/strategy-deals-dialog.component';
 import { StrategyTemplateEditDialogComponent } from '@/app/strategy-template/strategy-template-edit-dialog.component';
+import { StrategyEditDialogComponent } from '@/app/strategy/strategy-edit-dialog.component';
 
 
 @NgModule({
@@ -53,7 +54,7 @@ import { StrategyTemplateEditDialogComponent } from '@/app/strategy-template/str
     KlineChartComponent, StrategyTemplatesComponent, StrategyDealsDialogComponent,
     StrategiesComponent, StrategyOrdersChartComponent, StrategyOrdersChartDialogComponent,
     BacktestStrategiesComponent, BacktestOrdersChartComponent, BacktestOrdersChartDialogComponent,
-    StrategyTemplateEditDialogComponent,
+    StrategyTemplateEditDialogComponent, StrategyEditDialogComponent,
   ],
   bootstrap: [AppComponent],
   providers: [

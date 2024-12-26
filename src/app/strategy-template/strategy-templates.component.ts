@@ -110,7 +110,7 @@ export class StrategyTemplatesComponent extends SessionSupportComponent implemen
   }
 
   edit(st?: StrategyTemplate) {
-    if (st.id && !st.params) {
+    if (st && st.id && !st.params) {
       this.stService.getById2(st.id)
         .subscribe((st2: StrategyTemplate) => {
           Object.assign(st, st2);

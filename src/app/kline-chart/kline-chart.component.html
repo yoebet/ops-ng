@@ -6,16 +6,16 @@
       {{ source }}
     </button>
     <mat-label class="mr-4">Exchange</mat-label>
-    <button mat-button [class]="params.ex===ex? 'active-link':null"
-            *ngFor="let ex of exchanges" (click)="params.ex=ex;refresh()">
-      {{ ex }}
+    <button mat-button [class]="params.ex===ex.value? 'active-link':null"
+            *ngFor="let ex of exchanges" (click)="params.ex=ex.value;refresh()">
+      {{ ex.label }}
     </button>
   </div>
   <div class="mb-2">
     <mat-label class="mr-4">Symbol</mat-label>
-    <button mat-button [class]="params.symbol===sym? 'active-link':null"
-            *ngFor="let sym of symbols" (click)="params.symbol=sym;refresh()">
-      {{ sym }}
+    <button mat-button [class]="params.symbol===sym.symbol? 'active-link':null"
+            *ngFor="let sym of symbols" (click)="params.symbol=sym.symbol;refresh()">
+      {{ sym.symbol }}
     </button>
   </div>
   <div class="mb-2">
