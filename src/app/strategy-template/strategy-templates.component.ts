@@ -99,9 +99,12 @@ export class StrategyTemplatesComponent extends SessionSupportComponent implemen
         // maxHeight: '96vh',
         data: st,
       });
-    ref.afterClosed().subscribe(result => {
+    ref.afterClosed().subscribe((result: StrategyTemplate) => {
       if (result) {
-        this.refresh();
+        // this.refresh();
+        const list = this.dataSource.data;
+        list.splice(0, 0, result);
+        this.dataSource.setData(list);
       }
     });
   }
@@ -149,7 +152,10 @@ export class StrategyTemplatesComponent extends SessionSupportComponent implemen
     this.stService.remove(st.id).subscribe(result => {
       if (result.code === ResultCodes.CODE_SUCCESS) {
         this.snackBar.open(`remove success`);
-        this.refresh();
+        // this.refresh();
+        let list = this.dataSource.data;
+        list = list.filter(s => s !== st);
+        this.dataSource.setData(list);
       } else {
         this.stService.showErrorMessage(result.message, 'remove');
       }

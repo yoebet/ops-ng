@@ -150,7 +150,10 @@ export class BacktestStrategiesComponent extends SessionSupportComponent impleme
     this.stService.clone(st.id, '' + memo).subscribe(result => {
       if (result.code === ResultCodes.CODE_SUCCESS) {
         this.snackBar.open(`clone success`);
-        this.refresh();
+        // this.refresh();
+        const list = this.dataSource.data;
+        list.splice(0, 0, result.value);
+        this.dataSource.setData(list);
       } else {
         this.stService.showErrorMessage(result.message, 'clone');
       }
@@ -163,8 +166,11 @@ export class BacktestStrategiesComponent extends SessionSupportComponent impleme
     }
     this.stService.remove(st.id).subscribe(result => {
       if (result.code === ResultCodes.CODE_SUCCESS) {
-        this.snackBar.open(`remove success`);
-        this.refresh();
+        this.snackBar.open(`<remove> success`);
+        // this.refresh();
+        let list = this.dataSource.data;
+        list = list.filter(s => s !== st);
+        this.dataSource.setData(list);
       } else {
         this.stService.showErrorMessage(result.message, 'remove');
       }
