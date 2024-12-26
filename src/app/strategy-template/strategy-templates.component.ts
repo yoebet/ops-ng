@@ -9,6 +9,9 @@ import { User } from '@/models/sys/user';
 import { StrategyTemplateService } from '@/services/strategy/strategy-template.service';
 import { MessageDialogComponent } from '@/app/common/message-dialog/message-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
+import { ResultCodes } from '@/models/api-result';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { StrategyTemplateEditDialogComponent } from '@/app/strategy-template/strategy-template-edit-dialog.component';
 
 @Component({
   standalone: false,
@@ -33,6 +36,7 @@ export class StrategyTemplatesComponent extends SessionSupportComponent implemen
     'openDealSide',
     'tradeType',
     'quoteAmount',
+    'createdAt',
     'memo',
     'actions'
   ];
@@ -41,6 +45,7 @@ export class StrategyTemplatesComponent extends SessionSupportComponent implemen
 
   constructor(protected override sessionService: SessionService,
               protected stService: StrategyTemplateService,
+              private snackBar: MatSnackBar,
               protected dialog: MatDialog) {
     super(sessionService);
   }
@@ -85,7 +90,69 @@ export class StrategyTemplatesComponent extends SessionSupportComponent implemen
     MessageDialogComponent.ShowMessageDialog(data, this.dialog, { disableClose: false, width: '480px' });
   }
 
-  editNew() {
+  protected openEditDialog(st?: StrategyTemplate) {
+    const ref = this.dialog.open(
+      StrategyTemplateEditDialogComponent, {
+        disableClose: true,
+        width: '640px',
+        maxWidth: '90vw',
+        // maxHeight: '96vh',
+        data: st,
+      });
+    ref.afterClosed().subscribe(result => {
+      if (result) {
+        this.refresh();
+      }
+    });
+  }
 
+  edit(st?: StrategyTemplate) {
+    if (st.id && !st.params) {
+      this.stService.getById2(st.id)
+        .subscribe((st2: StrategyTemplate) => {
+          Object.assign(st, st2);
+          this.openEditDialog(st);
+        });
+    } else {
+      this.openEditDialog(st);
+    }
+  }
+
+  duplicate(st: StrategyTemplate) {
+    const editDuplicate = () => {
+      const newSt = new StrategyTemplate();
+      Object.assign(newSt, st);
+      delete newSt.id;
+      delete newSt.createdAt;
+      this.edit(newSt);
+    };
+    if (!st.params) {
+      this.stService.getById2(st.id)
+        .subscribe((st2: StrategyTemplate) => {
+          Object.assign(st, st2);
+          editDuplicate();
+        });
+    } else {
+      editDuplicate();
+    }
+  }
+
+  editNew() {
+    this.edit(undefined);
+  }
+
+
+  drop(st: StrategyTemplate) {
+    if (!confirm('Are you sure?')) {
+      return;
+    }
+    this.stService.remove(st.id).subscribe(result => {
+      if (result.code === ResultCodes.CODE_SUCCESS) {
+        this.snackBar.open(`remove success`);
+        this.refresh();
+      } else {
+        this.stService.showErrorMessage(result.message, 'remove');
+      }
+    });
   }
 }
