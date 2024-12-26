@@ -23,15 +23,17 @@ export class StrategyTemplatesComponent extends SessionSupportComponent implemen
 
   dataSource: TableDatasource<StrategyTemplate>;
 
-  displayedColumns: (keyof StrategyTemplate | 'index' | 'actions')[] = [
+  displayedColumns: (keyof StrategyTemplate | 'index' | 'actions' | 'algo')[] = [
     'index',
-    'name',
-    'code',
-    'openAlgo',
-    'closeAlgo',
+    // 'name',
+    // 'code',
+    'algo',
+    // 'openAlgo',
+    // 'closeAlgo',
     'openDealSide',
     'tradeType',
     'quoteAmount',
+    'memo',
     'actions'
   ];
 

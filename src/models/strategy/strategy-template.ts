@@ -20,4 +20,6 @@ export class StrategyTemplate extends BaseModel {
   quoteAmount?: number;
 
   params?: any;
+
+  memo?: string;
 }

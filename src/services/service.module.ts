@@ -13,6 +13,7 @@ import { StrategyTemplateService } from '@/services/strategy/strategy-template.s
 import { BacktestStrategyService } from '@/services/strategy/backtest-strategy.service';
 import { KlineDataService } from '@/services/market-data/kline-data.service';
 import { ExKlineDataService } from '@/services/market-data/ex-kline-data.service';
+import { ExchangeService } from '@/services/sys/exchange.service';
 
 @NgModule({
   imports: [
@@ -38,6 +39,7 @@ import { ExKlineDataService } from '@/services/market-data/ex-kline-data.service
     BacktestStrategyService,
     KlineDataService,
     ExKlineDataService,
+    ExchangeService,
   ]
 })
 export class ServiceModule {
