@@ -223,11 +223,16 @@
           </button>
         </mat-menu>
 
+        <button mat-button (click)="edit(row)">
+          Edit
+        </button>
+
         <button mat-button [matMenuTriggerFor]="miscActions">
           <mat-icon>more_vert</mat-icon>
-          Clone
+          Misc
         </button>
         <mat-menu #miscActions="matMenu">
+          <button mat-menu-item (click)="duplicate(row)">Duplicate ...</button>
           <button mat-menu-item (click)="clone(row)">Clone</button>
           <button mat-menu-item (click)="drop(row)">Drop</button>
         </mat-menu>

@@ -23,7 +23,6 @@ import { StrategyEditDialogComponent } from '@/app/strategy/strategy-edit-dialog
   standalone: false,
   selector: 'strategies',
   templateUrl: './strategies.html',
-  styleUrls: ['./strategies.css']
 })
 export class StrategiesComponent extends SessionSupportComponent implements AfterViewInit, OnInit {
 

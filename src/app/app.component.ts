@@ -5,7 +5,6 @@ import { ThemeService } from '@/services/style/theme.service';
   selector: 'app-root',
   standalone: false,
   templateUrl: './app.component.html',
-  styleUrl: './app.component.css'
 })
 export class AppComponent implements OnInit {
   constructor(private themeService: ThemeService) {

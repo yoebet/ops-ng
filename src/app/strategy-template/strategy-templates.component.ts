@@ -17,7 +17,6 @@ import { StrategyTemplateEditDialogComponent } from '@/app/strategy-template/str
   standalone: false,
   selector: 'strategy-templates',
   templateUrl: './strategy-templates.html',
-  styleUrls: ['./strategy-templates.css']
 })
 export class StrategyTemplatesComponent extends SessionSupportComponent implements AfterViewInit, OnInit {
 

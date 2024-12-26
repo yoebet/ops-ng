@@ -6,7 +6,6 @@ import { Theme, ThemeService } from '@/services/style/theme.service';
   standalone: false,
   selector: 'app-theme-switch',
   templateUrl: './theme-switch.component.html',
-  styleUrls: ['./theme-switch.component.css']
 })
 export class ThemeSwitchComponent {
   options: Array<Theme>;

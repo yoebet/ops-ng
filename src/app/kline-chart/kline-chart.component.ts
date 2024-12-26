@@ -16,7 +16,6 @@ import { UnifiedSymbol } from '@/models/ex/unified-symbol';
   selector: 'kline-chart',
   standalone: false,
   templateUrl: './kline-chart.component.html',
-  styleUrl: './kline-chart.component.css'
 })
 export class KlineChartComponent extends KlineChartBaseComponent {
   protected override mas = [10];

@@ -13,14 +13,15 @@ import { BacktestStrategy } from '@/models/strategy/backtest-strategy';
 import { BacktestOrdersChartDialogComponent } from '@/app/strategy-backtest/backtest-orders-chart-dialog.component';
 import { ResultCodes } from '@/models/api-result';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Strategy } from '@/models/strategy/strategy';
 import { StrategyDealsDialogComponent } from '@/app/strategy/strategy-deals-dialog.component';
+import { UnifiedSymbol } from '@/models/ex/unified-symbol';
+import { ExchangeService } from '@/services/sys/exchange.service';
+import { BacktestEditDialogComponent } from '@/app/strategy-backtest/backtest-edit-dialog.component';
 
 @Component({
   standalone: false,
   selector: 'bt-strategies',
   templateUrl: './strategies.html',
-  styleUrls: ['./strategies.css']
 })
 export class BacktestStrategiesComponent extends SessionSupportComponent implements AfterViewInit, OnInit {
 
@@ -29,6 +30,7 @@ export class BacktestStrategiesComponent extends SessionSupportComponent impleme
   @ViewChild(MatTable) table: MatTable<BacktestStrategy>;
 
   dataSource: TableDatasource<BacktestStrategy>;
+  symbols: UnifiedSymbol[] = [];
 
   displayedColumns: (keyof BacktestStrategy | 'index' | 'actions' | 'algo')[] = [
     'index',
@@ -58,9 +60,18 @@ export class BacktestStrategiesComponent extends SessionSupportComponent impleme
 
   constructor(protected override sessionService: SessionService,
               protected stService: BacktestStrategyService,
+              protected exchangeService: ExchangeService,
               private snackBar: MatSnackBar,
               protected dialog: MatDialog) {
     super(sessionService);
+    exchangeService.listUnifiedSymbols().subscribe(us => {
+      this.symbols = us;
+    });
+  }
+
+  protected override onInit() {
+    super.onInit();
+    this.dataSource = new TableDatasource<BacktestStrategy>();
   }
 
   ngAfterViewInit() {
@@ -83,15 +94,6 @@ export class BacktestStrategiesComponent extends SessionSupportComponent impleme
         Object.assign(st, st2);
         this.doShowParams(st);
       });
-  }
-
-  editNew() {
-
-  }
-
-  protected override onInit() {
-    super.onInit();
-    this.dataSource = new TableDatasource<BacktestStrategy>();
   }
 
   protected override withSession(user: User) {
@@ -118,7 +120,7 @@ export class BacktestStrategiesComponent extends SessionSupportComponent impleme
       });
   }
 
-  showDeals(st: Strategy) {
+  showDeals(st: BacktestStrategy) {
     this.dialog.open(
       StrategyDealsDialogComponent, {
         disableClose: true,
@@ -128,6 +130,62 @@ export class BacktestStrategiesComponent extends SessionSupportComponent impleme
         // maxHeight: '96vh',
         data: { strategy: st, backtest: true },
       });
+  }
+
+  protected openEditDialog(st?: BacktestStrategy) {
+    const ref = this.dialog.open(
+      BacktestEditDialogComponent, {
+        disableClose: true,
+        width: '640px',
+        maxWidth: '90vw',
+        // maxHeight: '96vh',
+        data: {
+          strategy: st,
+          symbols: this.symbols,
+        },
+      });
+    ref.afterClosed().subscribe((result: BacktestStrategy) => {
+      if (result) {
+        // this.refresh();
+        const list = this.dataSource.data;
+        list.splice(0, 0, result);
+        this.dataSource.setData(list);
+      }
+    });
+  }
+
+  edit(st?: BacktestStrategy) {
+    if (st && st.id && !st.params) {
+      this.stService.getById2(st.id).subscribe((st2: BacktestStrategy) => {
+        Object.assign(st, st2);
+        this.openEditDialog(st);
+      });
+    } else {
+      this.openEditDialog(st);
+    }
+  }
+
+  duplicate(st: BacktestStrategy) {
+    const editDuplicate = () => {
+      const newSt = new BacktestStrategy();
+      Object.assign(newSt, st);
+      delete newSt.id;
+      delete newSt.createdAt;
+      this.edit(newSt);
+    };
+    if (!st.params) {
+      this.stService.getById2(st.id)
+        .subscribe((st2: BacktestStrategy) => {
+          Object.assign(st, st2);
+          editDuplicate();
+        });
+    } else {
+      editDuplicate();
+    }
+  }
+
+  editNew() {
+    this.edit(undefined);
   }
 
   operateJob(

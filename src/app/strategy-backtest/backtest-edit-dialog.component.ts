@@ -4,41 +4,50 @@ import { ConsiderSide, OppCheckerAlgo, StrategyAlgo } from '@/models/strategy.ty
 import { ExTradeType } from '@/models/ex/exchange-types';
 import { Option, TradeSide } from '@/models/base';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Strategy } from '@/models/strategy/strategy';
-import { StrategyService } from '@/services/strategy/strategy.service';
 import { UnifiedSymbol } from '@/models/ex/unified-symbol';
 import { ExchangeService } from '@/services/sys/exchange.service';
+import { BacktestStrategy } from '@/models/strategy/backtest-strategy';
+import { BacktestStrategyService } from '@/services/strategy/backtest-strategy.service';
+import { FormControl, FormGroup } from '@angular/forms';
 
 @Component({
   standalone: false,
-  selector: 'strategy-edit-dialog',
-  templateUrl: './strategy-edit-dialog.component.html',
+  selector: 'backtest-edit-dialog',
+  templateUrl: './backtest-edit-dialog.component.html',
 })
-export class StrategyEditDialogComponent {
+export class BacktestEditDialogComponent {
+  readonly range = new FormGroup({
+    start: new FormControl<string | null>(null),
+    end: new FormControl<string | null>(null),
+  });
+
   oppAlgos = Object.values(OppCheckerAlgo);
   sides: ConsiderSide[] = [TradeSide.buy, TradeSide.sell, 'both'];
   exchanges: Option[] = [];
   symbols: UnifiedSymbol[] = [];
 
-  st: Strategy;
+  st: BacktestStrategy;
   paramsJson: string;
+  protected readonly ExTradeType = ExTradeType;
 
   constructor(
-    protected stService: StrategyService,
+    protected stService: BacktestStrategyService,
     protected exchangeService: ExchangeService,
     protected snackBar: MatSnackBar,
-    protected dialogRef: MatDialogRef<StrategyEditDialogComponent, Strategy>,
+    protected dialogRef: MatDialogRef<BacktestEditDialogComponent, BacktestStrategy>,
     @Inject(MAT_DIALOG_DATA)
-    public data: { strategy?: Strategy, symbols: UnifiedSymbol[], paperTrade: boolean }) {
-    const { strategy, symbols, paperTrade } = data;
+    public data: { strategy?: BacktestStrategy, symbols: UnifiedSymbol[] }) {
+    const { strategy, symbols } = data;
     this.symbols = symbols;
     this.exchanges = exchangeService.getExchanges();
-    this.st = new Strategy();
+    this.st = new BacktestStrategy();
+    const st = this.st;
     if (strategy) {
       Object.assign(this.st, strategy);
+      this.range.setValue({ start: st.dataFrom, end: st.dataTo });
     } else {
       const sym = this.symbols[0];
-      Object.assign(this.st, {
+      Object.assign(st, {
         ex: this.exchanges[0]?.value,
         symbol: sym?.symbol,
         // baseCoin: sym?.base,
@@ -51,9 +60,8 @@ export class StrategyEditDialogComponent {
         openDealSide: 'both',
         quoteAmount: 100,
         active: true,
-        paperTrade,
         params: {}
-      } as Strategy);
+      } as BacktestStrategy);
     }
     this.paramsJson = JSON.stringify(this.st.params || {}, null, 2);
   }
@@ -74,11 +82,15 @@ export class StrategyEditDialogComponent {
   save() {
     const st = this.st;
     st.params = JSON.parse(this.paramsJson);
+    const dateRange = this.range.value;
+    st.dataFrom = dateRange.start?.substring(0, 10);
+    st.dataTo = dateRange.end?.substring(0, 10);
     const ori = this.data.strategy;
     const usym = this.symbols.find(s => s.symbol === st.symbol);
     st.baseCoin = usym.base;
     st.market = usym.market;
     st.rawSymbol = undefined; // set at backend
+    // st.userExAccountId = undefined;
     if (st.id) {
       this.stService.update(st).subscribe(result => {
         if (ori) {
@@ -100,6 +112,4 @@ export class StrategyEditDialogComponent {
       });
     }
   }
-
-  protected readonly ExTradeType = ExTradeType;
 }
