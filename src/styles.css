@@ -45,55 +45,22 @@ body {
   white-space: pre-wrap;
 }
 
-.mat-tab-body {
-  padding: 1em;
-}
-
 .clickable {
   cursor: pointer;
 }
 
-/*img.ccy-logo {*/
-/*  width: 20px;*/
-/*  display: inline-block;*/
-/*}*/
-
-/*.ccy-logo-code img.ccy-logo {*/
-/*  vertical-align: bottom;*/
-/*}*/
-
-/*.ccy-logo-code .ccy-code {*/
-/*  display: inline-block;*/
-/*  margin-left: .5em;*/
-/*}*/
-
 .sidenav .mat-expansion-panel-body {
   margin-left: 1.5em;
 }
-
-/*.mat-menu-item img.ccy-logo {*/
-/*  width: 18px;*/
-/*  vertical-align: text-top;*/
-/*}*/
-
-/*.mat-option img.ccy-logo {*/
-/*  width: 18px;*/
-/*  vertical-align: text-top;*/
-/*}*/
-
-/*.mat-button img.ccy-logo {*/
-/*  width: 16px;*/
-/*  vertical-align: text-top;*/
-/*}*/
 
 .mat-header-cell.sum-row {
   font-size: 1.1em;
 }
 
 .table-filter-form {
-  margin-left: 16px;
-  margin-right: 16px;
-  padding-top: 8px;
+  margin-left: 1rem;
+  margin-right: 1rem;
+  padding-top: 0.5rem;
 }
 
 .table-filter-form .mat-form-field {
@@ -162,16 +129,11 @@ table.mat-table td {
   border-bottom: 1px solid rgba(255, 255, 255, .12);
 }
 
-.selectable {
-  cursor: pointer;
-}
-
-.field-box .mat-form-field:not(:last-child) {
-  margin-right: 2em;
-}
-
-.mat-radio-button {
-  margin-right: 1em;
+.main-toolbar.mat-toolbar {
+  background: var(--mat-sys-primary-container);
+  color: var(--mat-sys-on-primary-container);
+  /*border: 1px solid var(--mat-sys-outline-variant);*/
+  font: var(--mat-sys-body-large);
 }
 
 @media (max-width: 759px) {

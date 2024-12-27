@@ -19,22 +19,22 @@ export class ThemeService {
   themeSubject: Subject<Theme> = new Subject();
 
   options: Theme[] = [
-    {
-      backgroundColor: '#fff',
-      buttonColor: '#ff4081',
-      headingColor: '#3f51b5',
-      label: 'Indigo & Pink',
-      value: 'indigo-pink',
-      darkTheme: false
-    },
-    {
-      backgroundColor: '#fff',
-      buttonColor: '#ffc107',
-      headingColor: '#673ab7',
-      label: 'Deeppurple & Amber',
-      value: 'deeppurple-amber',
-      darkTheme: false
-    },
+    // {
+    //   backgroundColor: '#fff',
+    //   buttonColor: '#ff4081',
+    //   headingColor: '#3f51b5',
+    //   label: 'Indigo & Pink',
+    //   value: 'indigo-pink',
+    //   darkTheme: false
+    // },
+    // {
+    //   backgroundColor: '#fff',
+    //   buttonColor: '#ffc107',
+    //   headingColor: '#673ab7',
+    //   label: 'Deeppurple & Amber',
+    //   value: 'deeppurple-amber',
+    //   darkTheme: false
+    // },
     {
       backgroundColor: '#fff8f8',
       buttonColor: '#ba005c',
@@ -51,22 +51,22 @@ export class ThemeService {
       value: 'azure-blue',
       darkTheme: false
     },
-    {
-      backgroundColor: '#303030',
-      buttonColor: '#607d8b',
-      headingColor: '#e91e63',
-      label: 'Pink & Bluegrey',
-      value: 'pink-bluegrey',
-      darkTheme: true
-    },
-    {
-      backgroundColor: '#303030',
-      buttonColor: '#4caf50',
-      headingColor: '#9c27b0',
-      label: 'Purple & Green',
-      value: 'purple-green',
-      darkTheme: true
-    },
+    // {
+    //   backgroundColor: '#303030',
+    //   buttonColor: '#607d8b',
+    //   headingColor: '#e91e63',
+    //   label: 'Pink & Bluegrey',
+    //   value: 'pink-bluegrey',
+    //   darkTheme: true
+    // },
+    // {
+    //   backgroundColor: '#303030',
+    //   buttonColor: '#4caf50',
+    //   headingColor: '#9c27b0',
+    //   label: 'Purple & Green',
+    //   value: 'purple-green',
+    //   darkTheme: true
+    // },
     {
       backgroundColor: '#161215',
       buttonColor: '#ffabf3',
