@@ -31,6 +31,9 @@ import { StrategyDealsDialogComponent } from '@/app/strategy/strategy-deals-dial
 import { StrategyTemplateEditDialogComponent } from '@/app/strategy-template/strategy-template-edit-dialog.component';
 import { StrategyEditDialogComponent } from '@/app/strategy/strategy-edit-dialog.component';
 import { BacktestEditDialogComponent } from '@/app/strategy-backtest/backtest-edit-dialog.component';
+import {
+  StrategyTemplateSelectDialogComponent
+} from '@/app/strategy-template/strategy-template-select-dialog.component';
 
 
 @NgModule({
@@ -56,6 +59,7 @@ import { BacktestEditDialogComponent } from '@/app/strategy-backtest/backtest-ed
     StrategiesComponent, StrategyOrdersChartComponent, StrategyOrdersChartDialogComponent,
     BacktestStrategiesComponent, BacktestOrdersChartComponent, BacktestOrdersChartDialogComponent,
     StrategyTemplateEditDialogComponent, StrategyEditDialogComponent, BacktestEditDialogComponent,
+    StrategyTemplateSelectDialogComponent,
   ],
   bootstrap: [AppComponent],
   providers: [

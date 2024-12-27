@@ -17,6 +17,11 @@ import { StrategyDealsDialogComponent } from '@/app/strategy/strategy-deals-dial
 import { UnifiedSymbol } from '@/models/ex/unified-symbol';
 import { ExchangeService } from '@/services/sys/exchange.service';
 import { BacktestEditDialogComponent } from '@/app/strategy-backtest/backtest-edit-dialog.component';
+import { StrategyTemplate } from '@/models/strategy/strategy-template';
+import { StrategyTemplateService } from '@/services/strategy/strategy-template.service';
+import {
+  StrategyTemplateSelectDialogComponent
+} from '@/app/strategy-template/strategy-template-select-dialog.component';
 
 @Component({
   standalone: false,
@@ -31,6 +36,7 @@ export class BacktestStrategiesComponent extends SessionSupportComponent impleme
 
   dataSource: TableDatasource<BacktestStrategy>;
   symbols: UnifiedSymbol[] = [];
+  templates: StrategyTemplate[] = [];
 
   displayedColumns: (keyof BacktestStrategy | 'index' | 'actions' | 'algo')[] = [
     'index',
@@ -60,6 +66,7 @@ export class BacktestStrategiesComponent extends SessionSupportComponent impleme
 
   constructor(protected override sessionService: SessionService,
               protected stService: BacktestStrategyService,
+              protected templateService: StrategyTemplateService,
               protected exchangeService: ExchangeService,
               private snackBar: MatSnackBar,
               protected dialog: MatDialog) {
@@ -184,8 +191,60 @@ export class BacktestStrategiesComponent extends SessionSupportComponent impleme
     }
   }
 
+  private createStrategyFromTemplate(
+    st: StrategyTemplate,
+  ) {
+    const strategy = new BacktestStrategy();
+    strategy.algoCode = st.code;
+    strategy.openAlgo = st.openAlgo;
+    strategy.closeAlgo = st.closeAlgo;
+    strategy.openDealSide = st.openDealSide;
+    strategy.tradeType = st.tradeType;
+    strategy.quoteAmount = st.quoteAmount;
+    strategy.active = true;
+    strategy.params = st.params;
+    return strategy;
+  }
+
+  protected openTemplateSelectDialog() {
+    const ref = this.dialog.open(
+      StrategyTemplateSelectDialogComponent, {
+        disableClose: true,
+        width: '800px',
+        maxWidth: '90vw',
+        // maxHeight: '96vh',
+        data: {
+          templates: this.templates,
+        },
+      });
+    ref.afterClosed().subscribe((template: StrategyTemplate) => {
+      if (!template) {
+        return;
+      }
+      if (!template.params) {
+        this.templateService.getById2(template.id)
+          .subscribe((st2: StrategyTemplate) => {
+            Object.assign(template, st2);
+            const strategy = this.createStrategyFromTemplate(template);
+            this.edit(strategy);
+          });
+      } else {
+        const strategy = this.createStrategyFromTemplate(template);
+        this.edit(strategy);
+      }
+    });
+  }
+
   editNew() {
-    this.edit(undefined);
+    // this.edit(undefined);
+    if (this.templates.length > 0) {
+      this.openTemplateSelectDialog();
+      return;
+    }
+    this.templateService.list2().subscribe(templates => {
+      this.templates = templates;
+      this.openTemplateSelectDialog();
+    });
   }
 
   operateJob(

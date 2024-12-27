@@ -36,3 +36,11 @@ export function parseDateTimeUtc(dateStr: string): DateTime {
     zone: 'UTC',
   });
 }
+
+export function extractDate(date: string | DateTime): string {
+  // yyyy-MM-dd
+  if (typeof date === 'string') {
+    return date.substring(0, 10);
+  }
+  return date.toISODate();
+}

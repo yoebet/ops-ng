@@ -18,6 +18,11 @@ import { StrategyDealsDialogComponent } from '@/app/strategy/strategy-deals-dial
 import { UnifiedSymbol } from '@/models/ex/unified-symbol';
 import { ExchangeService } from '@/services/sys/exchange.service';
 import { StrategyEditDialogComponent } from '@/app/strategy/strategy-edit-dialog.component';
+import { StrategyTemplate } from '@/models/strategy/strategy-template';
+import { StrategyTemplateService } from '@/services/strategy/strategy-template.service';
+import {
+  StrategyTemplateSelectDialogComponent
+} from '@/app/strategy-template/strategy-template-select-dialog.component';
 
 @Component({
   standalone: false,
@@ -34,6 +39,7 @@ export class StrategiesComponent extends SessionSupportComponent implements Afte
 
   type?: 'paper' | 'real';
   symbols: UnifiedSymbol[] = [];
+  templates: StrategyTemplate[] = [];
 
   displayedColumns: (keyof Strategy | 'index' | 'actions' | 'algo')[] = [
     'index',
@@ -63,6 +69,7 @@ export class StrategiesComponent extends SessionSupportComponent implements Afte
 
   constructor(protected override sessionService: SessionService,
               protected stService: StrategyService,
+              protected templateService: StrategyTemplateService,
               protected exchangeService: ExchangeService,
               private activatedRoute: ActivatedRoute,
               private snackBar: MatSnackBar,
@@ -194,8 +201,61 @@ export class StrategiesComponent extends SessionSupportComponent implements Afte
     }
   }
 
+  private createStrategyFromTemplate(
+    st: StrategyTemplate,
+  ) {
+    const strategy = new Strategy();
+    strategy.algoCode = st.code;
+    strategy.openAlgo = st.openAlgo;
+    strategy.closeAlgo = st.closeAlgo;
+    strategy.openDealSide = st.openDealSide;
+    strategy.tradeType = st.tradeType;
+    strategy.quoteAmount = st.quoteAmount;
+    strategy.active = true;
+    strategy.paperTrade = this.type === 'paper';
+    strategy.params = st.params;
+    return strategy;
+  }
+
+  protected openTemplateSelectDialog() {
+    const ref = this.dialog.open(
+      StrategyTemplateSelectDialogComponent, {
+        disableClose: true,
+        width: '800px',
+        maxWidth: '90vw',
+        // maxHeight: '96vh',
+        data: {
+          templates: this.templates,
+        },
+      });
+    ref.afterClosed().subscribe((template: StrategyTemplate) => {
+      if (!template) {
+        return;
+      }
+      if (!template.params) {
+        this.templateService.getById2(template.id)
+          .subscribe((st2: StrategyTemplate) => {
+            Object.assign(template, st2);
+            const strategy = this.createStrategyFromTemplate(template);
+            this.edit(strategy);
+          });
+      } else {
+        const strategy = this.createStrategyFromTemplate(template);
+        this.edit(strategy);
+      }
+    });
+  }
+
   editNew() {
-    this.edit(undefined);
+    // this.edit(undefined);
+    if (this.templates.length > 0) {
+      this.openTemplateSelectDialog();
+      return;
+    }
+    this.templateService.list2().subscribe(templates => {
+      this.templates = templates;
+      this.openTemplateSelectDialog();
+    });
   }
 
   operateJob(

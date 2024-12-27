@@ -8,7 +8,8 @@ import { UnifiedSymbol } from '@/models/ex/unified-symbol';
 import { ExchangeService } from '@/services/sys/exchange.service';
 import { BacktestStrategy } from '@/models/strategy/backtest-strategy';
 import { BacktestStrategyService } from '@/services/strategy/backtest-strategy.service';
-import { FormControl, FormGroup } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { extractDate, validateForm } from '@/app/common/utils';
 
 @Component({
   standalone: false,
@@ -17,8 +18,8 @@ import { FormControl, FormGroup } from '@angular/forms';
 })
 export class BacktestEditDialogComponent {
   readonly range = new FormGroup({
-    start: new FormControl<string | null>(null),
-    end: new FormControl<string | null>(null),
+    start: new FormControl<string | null>(null, [Validators.required]),
+    end: new FormControl<string | null>(null, [Validators.required]),
   });
 
   oppAlgos = Object.values(OppCheckerAlgo);
@@ -37,19 +38,27 @@ export class BacktestEditDialogComponent {
     protected dialogRef: MatDialogRef<BacktestEditDialogComponent, BacktestStrategy>,
     @Inject(MAT_DIALOG_DATA)
     public data: { strategy?: BacktestStrategy, symbols: UnifiedSymbol[] }) {
+
     const { strategy, symbols } = data;
     this.symbols = symbols;
     this.exchanges = exchangeService.getExchanges();
     this.st = new BacktestStrategy();
     const st = this.st;
+    const symbol0 = this.symbols[0]?.symbol;
+    const ex0 = this.exchanges[0]?.value;
     if (strategy) {
+      if (!strategy.ex) {
+        strategy.ex = ex0;
+      }
+      if (!strategy.symbol) {
+        strategy.symbol = symbol0;
+      }
       Object.assign(this.st, strategy);
-      this.range.setValue({ start: st.dataFrom, end: st.dataTo });
+      this.range.setValue({ start: st.dataFrom || null, end: st.dataTo || null });
     } else {
-      const sym = this.symbols[0];
       Object.assign(st, {
-        ex: this.exchanges[0]?.value,
-        symbol: sym?.symbol,
+        ex: ex0,
+        symbol: symbol0,
         // baseCoin: sym?.base,
         // market: sym?.market,
         // rawSymbol: sym?.base,
@@ -80,11 +89,14 @@ export class BacktestEditDialogComponent {
   }
 
   save() {
+    if (!validateForm(this.range)) {
+      return;
+    }
     const st = this.st;
     st.params = JSON.parse(this.paramsJson);
     const dateRange = this.range.value;
-    st.dataFrom = dateRange.start?.substring(0, 10);
-    st.dataTo = dateRange.end?.substring(0, 10);
+    st.dataFrom = extractDate(dateRange.start);
+    st.dataTo = extractDate(dateRange.end);
     const ori = this.data.strategy;
     const usym = this.symbols.find(s => s.symbol === st.symbol);
     st.baseCoin = usym.base;

@@ -30,17 +30,29 @@ export class StrategyEditDialogComponent {
     protected dialogRef: MatDialogRef<StrategyEditDialogComponent, Strategy>,
     @Inject(MAT_DIALOG_DATA)
     public data: { strategy?: Strategy, symbols: UnifiedSymbol[], paperTrade: boolean }) {
+
     const { strategy, symbols, paperTrade } = data;
     this.symbols = symbols;
     this.exchanges = exchangeService.getExchanges();
     this.st = new Strategy();
+    const symbol0 = this.symbols[0]?.symbol;
+    const ex0 = this.exchanges[0]?.value;
     if (strategy) {
+      if (!strategy.ex) {
+        strategy.ex = ex0;
+      }
+      if (!strategy.symbol) {
+        strategy.symbol = symbol0;
+      }
+      if (typeof strategy.paperTrade !== 'boolean') {
+        strategy.paperTrade = paperTrade;
+      }
       Object.assign(this.st, strategy);
     } else {
       const sym = this.symbols[0];
       Object.assign(this.st, {
-        ex: this.exchanges[0]?.value,
-        symbol: sym?.symbol,
+        ex: ex0,
+        symbol: symbol0,
         // baseCoin: sym?.base,
         // market: sym?.market,
         // rawSymbol: sym?.base,

@@ -69,7 +69,6 @@ export class StrategyTemplatesComponent extends SessionSupportComponent implemen
     this.dataSource.setObservable(this.stService.list2());
   }
 
-
   showParams(st: StrategyTemplate) {
     if (st.params) {
       this.doShowParams(st);

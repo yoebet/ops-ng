@@ -12,10 +12,10 @@
     </button>
   </div>
   <div class="mb-2">
-    <mat-label class="mr-4">Symbol</mat-label>
+    <mat-label class="mr-4">Symbol(USDT)</mat-label>
     <button mat-button [class]="params.symbol===sym.symbol? 'active-link':null"
             *ngFor="let sym of symbols" (click)="params.symbol=sym.symbol;refresh()">
-      {{ sym.symbol }}
+      {{ sym.base }}
     </button>
   </div>
   <div class="mb-2">

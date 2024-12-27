@@ -66,7 +66,7 @@
   <div class="mt-4">
     <mat-form-field class="w-full">
       <mat-label>Data date range</mat-label>
-      <mat-date-range-input [formGroup]="range" [rangePicker]="picker">
+      <mat-date-range-input [formGroup]="range" [rangePicker]="picker" required>
         <input matStartDate formControlName="start" placeholder="Start date">
         <input matEndDate formControlName="end" placeholder="End date">
       </mat-date-range-input>
