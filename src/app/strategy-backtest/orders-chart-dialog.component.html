@@ -32,6 +32,24 @@
         {{ tl.interval }}
       </button>
     </div>
+    <div class="mb-2">
+      <mat-form-field class="mr-4">
+        <mat-label>Date From</mat-label>
+        <input matInput [matDatepicker]="dateFromPicker" [(ngModel)]="params.dateFrom"
+               (dblclick)="params.dateFrom=undefined" (dateChange)="refresh()">
+        <mat-datepicker-toggle matIconSuffix [for]="dateFromPicker"></mat-datepicker-toggle>
+        <mat-datepicker #dateFromPicker></mat-datepicker>
+      </mat-form-field>
+      <mat-form-field class="mr-4">
+        <mat-label>Limit</mat-label>
+        <mat-select [(ngModel)]="params.limit" (selectionChange)="refresh()">
+          <mat-option *ngFor="let limit of limits" [value]="limit">
+            {{ limit }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+      <button mat-button (click)="refresh()">Refresh</button>
+    </div>
   </div>
   <div [style.width.px]="chartWidth" [style.height.px]="chartHeight" class="kline-chart" #chart></div>
 </mat-dialog-content>

@@ -33,6 +33,13 @@
   </div>
   <div class="mb-2">
     <mat-form-field class="mr-4">
+      <mat-label>Date From</mat-label>
+      <input matInput [matDatepicker]="dateFromPicker" [(ngModel)]="params.dateFrom"
+             (dblclick)="params.dateFrom=undefined" (dateChange)="refresh()">
+      <mat-datepicker-toggle matIconSuffix [for]="dateFromPicker"></mat-datepicker-toggle>
+      <mat-datepicker #dateFromPicker></mat-datepicker>
+    </mat-form-field>
+    <mat-form-field class="mr-4">
       <mat-label>Limit</mat-label>
       <mat-select [(ngModel)]="params.limit" (selectionChange)="refresh()">
         <mat-option *ngFor="let limit of limits" [value]="limit">
