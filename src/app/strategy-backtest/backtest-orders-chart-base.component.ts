@@ -20,12 +20,12 @@ export abstract class BacktestOrdersChartBaseComponent extends KlineChartBaseCom
   protected strategy: BacktestStrategy;
 
   timeLevels = TimeLevel.TL1mTo1d;
-  limits = [300, 1000, 3000];
+  limits = [100, 300, 1000, 3000];
   params: KlineParams = {
     ex: '',
     symbol: '',
     interval: '1d',
-    limit: this.limits[0],
+    limit: this.limits[1],
   };
   klineSources = ['ex', 'db']
   klineSource = 'db';

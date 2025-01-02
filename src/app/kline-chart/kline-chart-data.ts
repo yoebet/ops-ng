@@ -128,6 +128,9 @@ export function setKlineOrders(kls: ChartKline[],
     if (!o.exUpdatedAt) {
       continue;
     }
+    if (!o.execSize) {
+      continue;
+    }
     if (!o.ts) {
       o.ts = new Date(o.exUpdatedAt).getTime();
     }

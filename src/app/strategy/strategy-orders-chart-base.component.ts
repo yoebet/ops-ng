@@ -20,12 +20,12 @@ export abstract class StrategyOrdersChartBaseComponent extends KlineChartBaseCom
   protected strategy: Strategy;
 
   timeLevels = TimeLevel.TL1mTo1d;
-  limits = [300, 1000, 3000];
+  limits = [100, 300, 1000, 3000];
   params: KlineParams = {
     ex: '',
     symbol: '',
     interval: '1d',
-    limit: this.limits[0],
+    limit: this.limits[1],
   };
   klineSources = ['ex', 'db']
   klineSource = 'ex';
@@ -50,7 +50,7 @@ export abstract class StrategyOrdersChartBaseComponent extends KlineChartBaseCom
     const dtFrom = DateTime.fromISO(this.strategy.createdAt);
     const dtTo = DateTime.now();
 
-    this.params.dateFrom = dtFrom.minus({ day: 1 }).toISODate();
+    this.params.dateFrom = dtFrom.toISODate();
 
     const seconds = dtTo.diff(dtFrom, 'seconds').get('seconds');
     const minBars = 50;

@@ -25,7 +25,7 @@ export class KlineChartComponent extends KlineChartBaseComponent {
   timeLevels = TimeLevel.TL1mTo1d;
   exchanges: Option[] = [];
   symbols: UnifiedSymbol[] = [];
-  limits = [100, 200, 300];
+  limits = [100, 300, 1000, 3000];
 
   params: KlineParams = {
     ex: '',

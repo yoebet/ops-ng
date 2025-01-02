@@ -536,9 +536,9 @@ export abstract class KlineChartBaseComponent implements OnInit, OnDestroy, Afte
     const dealIds = ordersAgg.orders.map(o => o.dealId).sort().join(', ');
     const tooltipContent = `orders: ${ordersAgg.count}<br />
 deal id: ${dealIds}<br />
-price: ${ordersAgg.avgPrice.toPrecision(6)}<br />
-size: ${ordersAgg.size.toPrecision(6)}<br />
-amount: ${ordersAgg.amount.toPrecision(6)}`;
+price: ${ordersAgg.avgPrice?.toPrecision(6)}<br />
+size: ${ordersAgg.size?.toPrecision(6)}<br />
+amount: ${ordersAgg.amount?.toPrecision(6)}`;
 
     ordersAgg.tooltipContent = tooltipContent;
     return tooltipContent;
