@@ -375,7 +375,7 @@ export abstract class KlineChartBaseComponent implements OnInit, OnDestroy, Afte
         const pf = (priceDigits != null) ?
           (p: number) => p.toFixed(priceDigits) :
           (p: number) => p.toPrecision(6);
-        const pp = (p) => `${p.toFixed(2)}%`;
+        const pp = (p) => isNaN(p) ? '?' : `${p.toFixed(2)}%`;
         kl.dateStr = formatDate(kl.ts, timeLevel.interval, true);
         kl.size_s = volumeFormatter(kl.size);
         kl.amount_s = volumeFormatter(kl.amount);
