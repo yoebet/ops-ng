@@ -112,6 +112,10 @@ export class BacktestStrategiesComponent extends SessionSupportComponent impleme
       }
       return true;
     }
+    this.dataSource.compareFieldMappers = {
+      ordersCount: (s) => s.ordersCount,
+      dealsCount: (s) => s.dealsCount,
+    }
   }
 
   ngAfterViewInit() {

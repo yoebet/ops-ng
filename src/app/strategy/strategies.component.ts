@@ -118,6 +118,10 @@ export class StrategiesComponent extends SessionSupportComponent implements Afte
       }
       return true;
     }
+    this.dataSource.compareFieldMappers = {
+      ordersCount: (s) => s.ordersCount,
+      dealsCount: (s) => s.dealsCount,
+    }
   }
 
   protected override withSession(user: User) {
