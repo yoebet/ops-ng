@@ -1,28 +1,30 @@
-import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { MatDialog } from '@angular/material/dialog';
-import { MatPaginator } from '@angular/material/paginator';
-import { MatSort } from '@angular/material/sort';
-import { MatTable } from '@angular/material/table';
-import { SessionSupportComponent } from '@/app/common/session-support.component';
-import { SessionService } from '@/services/sys/session.service';
-import { Strategy } from '@/models/strategy/strategy';
-import { TableDatasource } from '@/app/common/table-datasource';
-import { User } from '@/models/sys/user';
-import { StrategyService } from '@/services/strategy/strategy.service';
-import { MessageDialogComponent } from '@/app/common/message-dialog/message-dialog.component';
-import { StrategyOrdersChartDialogComponent } from '@/app/strategy/strategy-orders-chart-dialog.component';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { ResultCodes } from '@/models/api-result';
-import { StrategyDealsDialogComponent } from '@/app/strategy/strategy-deals-dialog.component';
-import { UnifiedSymbol } from '@/models/ex/unified-symbol';
-import { ExchangeService } from '@/services/sys/exchange.service';
-import { StrategyEditDialogComponent } from '@/app/strategy/strategy-edit-dialog.component';
-import { StrategyTemplate } from '@/models/strategy/strategy-template';
-import { StrategyTemplateService } from '@/services/strategy/strategy-template.service';
+import {AfterViewInit, Component, OnInit, ViewChild} from '@angular/core';
+import {ActivatedRoute} from '@angular/router';
+import {MatDialog} from '@angular/material/dialog';
+import {MatPaginator} from '@angular/material/paginator';
+import {MatSort} from '@angular/material/sort';
+import {MatTable} from '@angular/material/table';
+import _ from 'lodash';
+import {SessionSupportComponent} from '@/app/common/session-support.component';
+import {SessionService} from '@/services/sys/session.service';
+import {Strategy} from '@/models/strategy/strategy';
+import {TableDatasource} from '@/app/common/table-datasource';
+import {User} from '@/models/sys/user';
+import {StrategyService} from '@/services/strategy/strategy.service';
+import {MessageDialogComponent} from '@/app/common/message-dialog/message-dialog.component';
+import {StrategyOrdersChartDialogComponent} from '@/app/strategy/strategy-orders-chart-dialog.component';
+import {MatSnackBar} from '@angular/material/snack-bar';
+import {ResultCodes} from '@/models/api-result';
+import {StrategyDealsDialogComponent} from '@/app/strategy/strategy-deals-dialog.component';
+import {UnifiedSymbol} from '@/models/ex/unified-symbol';
+import {ExchangeService} from '@/services/sys/exchange.service';
+import {StrategyEditDialogComponent} from '@/app/strategy/strategy-edit-dialog.component';
+import {StrategyTemplate} from '@/models/strategy/strategy-template';
+import {StrategyTemplateService} from '@/services/strategy/strategy-template.service';
 import {
   StrategyTemplateSelectDialogComponent
 } from '@/app/strategy-template/strategy-template-select-dialog.component';
+import {Option} from '@/models/base';
 
 @Component({
   standalone: false,
@@ -40,6 +42,15 @@ export class StrategiesComponent extends SessionSupportComponent implements Afte
   type?: 'paper' | 'real';
   symbols: UnifiedSymbol[] = [];
   templates: StrategyTemplate[] = [];
+
+  exchanges: Option[] = [];
+  coins: string[] = [];
+  filter: {
+    ex?: string;
+    tradeType?: string;
+    openDealSide?: string;
+    baseCoin?: string;
+  } = {};
 
   displayedColumns: (keyof Strategy | 'index' | 'actions' | 'algo')[] = [
     'index',
@@ -80,12 +91,33 @@ export class StrategiesComponent extends SessionSupportComponent implements Afte
     });
     exchangeService.listUnifiedSymbols().subscribe(us => {
       this.symbols = us;
+      this.coins = _.uniq(us.map(s => s.base));
     });
+    this.exchanges = exchangeService.getExchanges();
   }
 
   protected override onInit() {
     super.onInit();
     this.dataSource = new TableDatasource<Strategy>();
+    this.dataSource.filter = (s: Strategy) => {
+      const f = this.filter;
+      if (!f) {
+        return true;
+      }
+      if (f.ex && f.ex !== s.ex) {
+        return false;
+      }
+      if (f.tradeType && f.tradeType !== s.tradeType) {
+        return false;
+      }
+      if (f.openDealSide && f.openDealSide !== s.openDealSide) {
+        return false;
+      }
+      if (f.baseCoin && f.baseCoin !== s.baseCoin) {
+        return false;
+      }
+      return true;
+    }
   }
 
   protected override withSession(user: User) {
@@ -101,9 +133,12 @@ export class StrategiesComponent extends SessionSupportComponent implements Afte
 
 
   refresh() {
-    this.dataSource.setObservable(this.stService.list2(null, { type: this.type }));
+    this.dataSource.setObservable(this.stService.list2(null, {type: this.type}));
   }
 
+  applyFilter() {
+    this.dataSource.refresh();
+  }
 
   showParams(st: Strategy) {
     if (st.params) {
@@ -120,8 +155,8 @@ export class StrategiesComponent extends SessionSupportComponent implements Afte
   private doShowParams(st: Strategy) {
     const msg = JSON.stringify(st.params, null, 2);
     const title = `Params（${st.name}）`;
-    const data = { msg, type: '', title };
-    MessageDialogComponent.ShowMessageDialog(data, this.dialog, { disableClose: false, width: '480px' });
+    const data = {msg, type: '', title};
+    MessageDialogComponent.ShowMessageDialog(data, this.dialog, {disableClose: false, width: '480px'});
   }
 
   showKlineOrdersChart(st: Strategy) {
@@ -144,7 +179,7 @@ export class StrategiesComponent extends SessionSupportComponent implements Afte
         maxWidth: '90vw',
         // height: '90vh',
         // maxHeight: '96vh',
-        data: { strategy: st, backtest: false },
+        data: {strategy: st, backtest: false},
       });
   }
 

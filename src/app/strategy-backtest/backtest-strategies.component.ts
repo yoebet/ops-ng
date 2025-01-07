@@ -1,27 +1,30 @@
-import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
-import { SessionSupportComponent } from '@/app/common/session-support.component';
-import { SessionService } from '@/services/sys/session.service';
-import { MatSort } from '@angular/material/sort';
-import { MatTable } from '@angular/material/table';
-import { TableDatasource } from '@/app/common/table-datasource';
-import { User } from '@/models/sys/user';
-import { MessageDialogComponent } from '@/app/common/message-dialog/message-dialog.component';
-import { MatDialog } from '@angular/material/dialog';
-import { MatPaginator } from '@angular/material/paginator';
-import { BacktestStrategyService } from '@/services/strategy/backtest-strategy.service';
-import { BacktestStrategy } from '@/models/strategy/backtest-strategy';
-import { BacktestOrdersChartDialogComponent } from '@/app/strategy-backtest/backtest-orders-chart-dialog.component';
-import { ResultCodes } from '@/models/api-result';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { StrategyDealsDialogComponent } from '@/app/strategy/strategy-deals-dialog.component';
-import { UnifiedSymbol } from '@/models/ex/unified-symbol';
-import { ExchangeService } from '@/services/sys/exchange.service';
-import { BacktestEditDialogComponent } from '@/app/strategy-backtest/backtest-edit-dialog.component';
-import { StrategyTemplate } from '@/models/strategy/strategy-template';
-import { StrategyTemplateService } from '@/services/strategy/strategy-template.service';
+import {AfterViewInit, Component, OnInit, ViewChild} from '@angular/core';
+import {SessionSupportComponent} from '@/app/common/session-support.component';
+import {SessionService} from '@/services/sys/session.service';
+import {MatSort} from '@angular/material/sort';
+import {MatTable} from '@angular/material/table';
+import {TableDatasource} from '@/app/common/table-datasource';
+import {User} from '@/models/sys/user';
+import {MessageDialogComponent} from '@/app/common/message-dialog/message-dialog.component';
+import {MatDialog} from '@angular/material/dialog';
+import {MatPaginator} from '@angular/material/paginator';
+import {BacktestStrategyService} from '@/services/strategy/backtest-strategy.service';
+import {BacktestStrategy} from '@/models/strategy/backtest-strategy';
+import {BacktestOrdersChartDialogComponent} from '@/app/strategy-backtest/backtest-orders-chart-dialog.component';
+import {ResultCodes} from '@/models/api-result';
+import {MatSnackBar} from '@angular/material/snack-bar';
+import {StrategyDealsDialogComponent} from '@/app/strategy/strategy-deals-dialog.component';
+import {UnifiedSymbol} from '@/models/ex/unified-symbol';
+import {ExchangeService} from '@/services/sys/exchange.service';
+import {BacktestEditDialogComponent} from '@/app/strategy-backtest/backtest-edit-dialog.component';
+import {StrategyTemplate} from '@/models/strategy/strategy-template';
+import {StrategyTemplateService} from '@/services/strategy/strategy-template.service';
 import {
   StrategyTemplateSelectDialogComponent
 } from '@/app/strategy-template/strategy-template-select-dialog.component';
+import {Option} from '@/models/base';
+import _ from 'lodash';
+import {Strategy} from '@/models/strategy/strategy';
 
 @Component({
   standalone: false,
@@ -37,6 +40,15 @@ export class BacktestStrategiesComponent extends SessionSupportComponent impleme
   dataSource: TableDatasource<BacktestStrategy>;
   symbols: UnifiedSymbol[] = [];
   templates: StrategyTemplate[] = [];
+
+  exchanges: Option[] = [];
+  coins: string[] = [];
+  filter: {
+    ex?: string;
+    tradeType?: string;
+    openDealSide?: string;
+    baseCoin?: string;
+  } = {};
 
   displayedColumns: (keyof BacktestStrategy | 'index' | 'actions' | 'algo')[] = [
     'index',
@@ -73,12 +85,33 @@ export class BacktestStrategiesComponent extends SessionSupportComponent impleme
     super(sessionService);
     exchangeService.listUnifiedSymbols().subscribe(us => {
       this.symbols = us;
+      this.coins = _.uniq(us.map(s => s.base));
     });
+    this.exchanges = exchangeService.getExchanges();
   }
 
   protected override onInit() {
     super.onInit();
     this.dataSource = new TableDatasource<BacktestStrategy>();
+    this.dataSource.filter = (s: Strategy) => {
+      const f = this.filter;
+      if (!f) {
+        return true;
+      }
+      if (f.ex && f.ex !== s.ex) {
+        return false;
+      }
+      if (f.tradeType && f.tradeType !== s.tradeType) {
+        return false;
+      }
+      if (f.openDealSide && f.openDealSide !== s.openDealSide) {
+        return false;
+      }
+      if (f.baseCoin && f.baseCoin !== s.baseCoin) {
+        return false;
+      }
+      return true;
+    }
   }
 
   ngAfterViewInit() {
@@ -89,6 +122,10 @@ export class BacktestStrategiesComponent extends SessionSupportComponent impleme
 
   refresh() {
     this.dataSource.setObservable(this.stService.list2())
+  }
+
+  applyFilter() {
+    this.dataSource.refresh();
   }
 
   showParams(st: BacktestStrategy) {
@@ -111,8 +148,8 @@ export class BacktestStrategiesComponent extends SessionSupportComponent impleme
   private doShowParams(st: BacktestStrategy) {
     const msg = JSON.stringify(st.params, null, 2);
     const title = `Params（${st.name}）`;
-    const data = { msg, type: '', title };
-    MessageDialogComponent.ShowMessageDialog(data, this.dialog, { disableClose: false, width: '480px' });
+    const data = {msg, type: '', title};
+    MessageDialogComponent.ShowMessageDialog(data, this.dialog, {disableClose: false, width: '480px'});
   }
 
   showKlineOrdersChart(st: BacktestStrategy) {
@@ -135,7 +172,7 @@ export class BacktestStrategiesComponent extends SessionSupportComponent impleme
         maxWidth: '90vw',
         // height: '90vh',
         // maxHeight: '96vh',
-        data: { strategy: st, backtest: true },
+        data: {strategy: st, backtest: true},
       });
   }
 

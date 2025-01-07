@@ -57,12 +57,6 @@ body {
   font-size: 1.1em;
 }
 
-.table-filter-form {
-  margin-left: 1rem;
-  margin-right: 1rem;
-  padding-top: 0.5rem;
-}
-
 .table-filter-form .mat-form-field {
   margin-right: 0.5em;
   width: 120px;

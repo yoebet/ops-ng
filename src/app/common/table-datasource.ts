@@ -1,8 +1,8 @@
-import { DataSource } from '@angular/cdk/collections';
-import { MatPaginator } from '@angular/material/paginator';
-import { MatSort } from '@angular/material/sort';
-import { map } from 'rxjs/operators';
-import { Observable, merge, BehaviorSubject } from 'rxjs';
+import {DataSource} from '@angular/cdk/collections';
+import {MatPaginator} from '@angular/material/paginator';
+import {MatSort} from '@angular/material/sort';
+import {map} from 'rxjs/operators';
+import {Observable, merge, BehaviorSubject} from 'rxjs';
 
 
 export class TableDatasource<T> extends DataSource<T> {
@@ -11,6 +11,7 @@ export class TableDatasource<T> extends DataSource<T> {
 
   paginator?: MatPaginator;
   sort: MatSort;
+  filter?: (t: T) => boolean;
 
   compareFieldMappers: { [column: string]: (s: T) => any };
 
@@ -43,7 +44,13 @@ export class TableDatasource<T> extends DataSource<T> {
     ].filter(e => e);
 
     return merge(...dataMutations).pipe(map(() => {
-      const sortedData = this.getSortedData([...this.data]);
+      let data = this.data;
+      if (this.filter) {
+        data = data.filter(this.filter);
+      } else {
+        data = [...this.data];
+      }
+      const sortedData = this.getSortedData(data);
       if (this.paginator) {
         return this.getPagedData(sortedData);
       } else {
@@ -55,7 +62,13 @@ export class TableDatasource<T> extends DataSource<T> {
   disconnect() {
   }
 
+  refresh() {
+    this.paginator.pageIndex = 0;
+    this.dataSubject.next(this.data);
+  }
+
   protected getPagedData(data: T[]) {
+    this.paginator.length = data.length;
     const startIndex = this.paginator.pageIndex * this.paginator.pageSize;
     return data.splice(startIndex, this.paginator.pageSize);
   }
