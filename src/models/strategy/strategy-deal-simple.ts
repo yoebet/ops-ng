@@ -1,9 +1,12 @@
-import { BaseModel } from '@/models/base-model';
+import {BaseModel} from '@/models/base-model';
+import {TradeSide} from '@/models/base';
 
 export class StrategyDealSimple extends BaseModel {
   pendingOrderId?: number;
 
   lastOrderId?: number;
+
+  lastOrderSide?: TradeSide;
 
   pnlUsd?: number;
 

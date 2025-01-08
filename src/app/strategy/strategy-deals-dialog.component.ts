@@ -1,15 +1,15 @@
-import { AfterViewInit, Component, Inject, OnInit, ViewChild } from '@angular/core';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { Strategy } from '@/models/strategy/strategy';
-import { StrategyService } from '@/services/strategy/strategy.service';
-import { StrategyDealSimple } from '@/models/strategy/strategy-deal-simple';
-import { MatSort } from '@angular/material/sort';
-import { MatTable } from '@angular/material/table';
-import { TableDatasource } from '@/app/common/table-datasource';
+import {AfterViewInit, Component, Inject, OnInit, ViewChild} from '@angular/core';
+import {MAT_DIALOG_DATA} from '@angular/material/dialog';
+import {Strategy} from '@/models/strategy/strategy';
+import {StrategyService} from '@/services/strategy/strategy.service';
+import {StrategyDealSimple} from '@/models/strategy/strategy-deal-simple';
+import {MatSort} from '@angular/material/sort';
+import {MatTable} from '@angular/material/table';
+import {TableDatasource} from '@/app/common/table-datasource';
 import * as _ from 'lodash';
-import { BacktestStrategyService } from '@/services/strategy/backtest-strategy.service';
-import { Observable } from 'rxjs';
-import { ListResult } from '@/models/api-result';
+import {BacktestStrategyService} from '@/services/strategy/backtest-strategy.service';
+import {Observable} from 'rxjs';
+import {ListResult} from '@/models/api-result';
 
 @Component({
   standalone: false,
@@ -28,6 +28,7 @@ export class StrategyDealsDialogComponent implements AfterViewInit, OnInit {
     'status',
     'pendingOrderId',
     'lastOrderId',
+    'lastOrderSide',
     'pnlUsd',
     // 'createdAt',
     'openAt',
@@ -45,7 +46,7 @@ export class StrategyDealsDialogComponent implements AfterViewInit, OnInit {
 
   ngOnInit() {
     this.dataSource = new TableDatasource<StrategyDealSimple>();
-    const { strategy, backtest } = this.data;
+    const {strategy, backtest} = this.data;
 
     const setDeals = () => {
       this.dataSource.setData(strategy.deals);
