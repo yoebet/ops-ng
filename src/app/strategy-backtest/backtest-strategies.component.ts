@@ -1,4 +1,5 @@
 import {AfterViewInit, Component, OnInit, ViewChild} from '@angular/core';
+import _ from 'lodash';
 import {SessionSupportComponent} from '@/app/common/session-support.component';
 import {SessionService} from '@/services/sys/session.service';
 import {MatSort} from '@angular/material/sort';
@@ -23,8 +24,6 @@ import {
   StrategyTemplateSelectDialogComponent
 } from '@/app/strategy-template/strategy-template-select-dialog.component';
 import {Option} from '@/models/base';
-import _ from 'lodash';
-import {Strategy} from '@/models/strategy/strategy';
 
 @Component({
   standalone: false,
@@ -53,7 +52,8 @@ export class BacktestStrategiesComponent extends SessionSupportComponent impleme
   displayedColumns: (keyof BacktestStrategy | 'index' | 'actions' | 'algo')[] = [
     'index',
     // 'ex',
-    'symbol',
+    'baseCoin',
+    // 'symbol',
     // 'name',
     'algo',
     // 'openAlgo',
@@ -93,7 +93,7 @@ export class BacktestStrategiesComponent extends SessionSupportComponent impleme
   protected override onInit() {
     super.onInit();
     this.dataSource = new TableDatasource<BacktestStrategy>();
-    this.dataSource.filter = (s: Strategy) => {
+    this.dataSource.filter = (s: BacktestStrategy) => {
       const f = this.filter;
       if (!f) {
         return true;
@@ -314,6 +314,18 @@ export class BacktestStrategiesComponent extends SessionSupportComponent impleme
         this.dataSource.setData(list);
       } else {
         this.stService.showErrorMessage(result.message, 'clone');
+      }
+    });
+  }
+
+  cancelDeal(
+    st: BacktestStrategy,
+  ) {
+    this.stService.cancelDeal(st.id).subscribe(result => {
+      if (result.code === ResultCodes.CODE_SUCCESS) {
+        this.snackBar.open(`success`);
+      } else {
+        this.stService.showErrorMessage(result.message, `Cancel Current Deal`);
       }
     });
   }

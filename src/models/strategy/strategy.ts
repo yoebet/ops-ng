@@ -1,8 +1,8 @@
-import { ExSymbolBase } from '@/models/strategy/ex-symbol-base';
-import { ExTradeType } from '@/models/ex/exchange-types';
-import { ConsiderSide, OppCheckerAlgo, StrategyAlgo } from '@/models/strategy.types';
-import { StrategyOrder } from '@/models/strategy/strategy-order';
-import { StrategyDealSimple } from '@/models/strategy/strategy-deal-simple';
+import {ExSymbolBase} from '@/models/strategy/ex-symbol-base';
+import {ExTradeType} from '@/models/ex/exchange-types';
+import {ConsiderSide, OppCheckerAlgo, StrategyAlgo} from '@/models/strategy.types';
+import {StrategyOrder} from '@/models/strategy/strategy-order';
+import {StrategyDealSimple} from '@/models/strategy/strategy-deal-simple';
 
 export class Strategy extends ExSymbolBase {
   algoCode: StrategyAlgo;
@@ -38,6 +38,8 @@ export class Strategy extends ExSymbolBase {
   jobSummited?: boolean;
 
   memo?: string;
+
+  pnlUsd?: number;
 
   dealsCount?: number;
 

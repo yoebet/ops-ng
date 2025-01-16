@@ -56,8 +56,8 @@ export class StrategiesComponent extends SessionSupportComponent implements Afte
     'index',
     'ex',
     // 'market',
-    // 'baseCoin',
-    'symbol',
+    'baseCoin',
+    // 'symbol',
     // 'rawSymbol',
     'name',
     'algo',
@@ -73,6 +73,7 @@ export class StrategiesComponent extends SessionSupportComponent implements Afte
     'jobSummited',
     'dealsCount',
     'ordersCount',
+    'pnlUsd',
     'actions'
   ];
 
@@ -323,6 +324,18 @@ export class StrategiesComponent extends SessionSupportComponent implements Afte
         this.dataSource.setData(list);
       } else {
         this.stService.showErrorMessage(result.message, 'clone');
+      }
+    });
+  }
+
+  cancelDeal(
+    st: Strategy,
+  ) {
+    this.stService.cancelDeal(st.id).subscribe(result => {
+      if (result.code === ResultCodes.CODE_SUCCESS) {
+        this.snackBar.open(`success`);
+      } else {
+        this.stService.showErrorMessage(result.message, `Cancel Current Deal`);
       }
     });
   }

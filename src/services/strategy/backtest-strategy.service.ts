@@ -1,12 +1,12 @@
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { MatDialog } from '@angular/material/dialog';
-import { ModelCurdService } from '../model-curd.service';
-import { Observable } from 'rxjs';
-import { ApiResult, ListResult, ValueResult } from '@/models/api-result';
-import { StrategyOrder } from '@/models/strategy/strategy-order';
-import { BacktestStrategy } from '@/models/strategy/backtest-strategy';
-import { StrategyDealSimple } from '@/models/strategy/strategy-deal-simple';
+import {Injectable} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {MatDialog} from '@angular/material/dialog';
+import {ModelCurdService} from '../model-curd.service';
+import {Observable} from 'rxjs';
+import {ApiResult, ListResult, ValueResult} from '@/models/api-result';
+import {StrategyOrder} from '@/models/strategy/strategy-order';
+import {BacktestStrategy} from '@/models/strategy/backtest-strategy';
+import {StrategyDealSimple} from '@/models/strategy/strategy-deal-simple';
 
 
 @Injectable()
@@ -41,7 +41,12 @@ export class BacktestStrategyService extends ModelCurdService<BacktestStrategy> 
     memo: string,
   ): Observable<ValueResult<BacktestStrategy>> {
     const url = `${this.baseUrl}/${strategyId}/clone`;
-    return this.postForResult(url, { memo } as any);
+    return this.postForResult(url, {memo} as any);
+  }
+
+  cancelDeal(strategyId: number): Observable<ValueResult<ApiResult>> {
+    const url = `${this.baseUrl}/${strategyId}/cancel-current-deal`;
+    return this.post0(url);
   }
 
 }
