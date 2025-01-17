@@ -45,8 +45,8 @@
         {{ tradeType }}
       </button>
       <mat-label class="ml-4 mr-4">Open Side</mat-label>
-      <button mat-button [class]="!filter.tradeType? 'active-link':null"
-              (click)="filter.tradeType=undefined;applyFilter()">
+      <button mat-button [class]="!filter.openDealSide? 'active-link':null"
+              (click)="filter.openDealSide=undefined;applyFilter()">
         ALL
       </button>
       <button mat-button [class]="filter.openDealSide===side? 'active-link':null"
